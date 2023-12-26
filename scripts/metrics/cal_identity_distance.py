@@ -13,9 +13,9 @@ import math
 
 root_path = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir, os.path.pardir))
 sys.path.append(root_path)
-sys.path.append(os.path.join(root_path, 'RestoreFormer/modules/losses'))
+sys.path.append(os.path.join(root_path, 'DAEFR/modules/losses'))
 
-from RestoreFormer.modules.vqvae.arcface_arch import ResNetArcFace
+from DAEFR.modules.vqvae.arcface_arch import ResNetArcFace
 from basicsr.losses.losses import L1Loss, MSELoss
 
 def cosine_similarity(emb1, emb2):

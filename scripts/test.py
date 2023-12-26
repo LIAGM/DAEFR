@@ -45,7 +45,6 @@ def restoration(model,
         save_crop_path = os.path.join(save_root, 'cropped_faces', img_name)
         face_helper.align_warp_face(save_crop_path)
 
-    # pdb.set_trace()
 
     # face restoration
     for idx, cropped_face in enumerate(face_helper.cropped_faces):
@@ -64,54 +63,11 @@ def restoration(model,
             print(f'\tFailed inference for GFPGAN: {error}.')
             restored_face = cropped_face
 
-        # pdb.set_trace()
-        # Save encoder and dictionary features 
-        # output = [dec, diff, info, hs, h, quant, dictionary]
-        # output[3] = hs = self.encoder(x)
-        # output[4] = h = self.quant_conv(hs['out'])
-        # quant, emb_loss, info = self.quantize(h)
-        # output[5] = quant
-        # output[6] = dictionary
-        # output[2] = info = (perplexity, min_encodings, min_encoding_indices, d)
-        
-        # encoder_feature = output[4].permute(0, 2, 3, 1).contiguous()
-        # reshape to ( batch*height*width, e_dim = 256)
-        # encoder_feature = encoder_feature.view(-1, 256)
-        # [256, 256]
-        # encoder_feature = encoder_feature.cpu().numpy()
-        
-        # dictionary_feature = output[5].permute(0, 2, 3, 1).contiguous()
-        # reshape to ( batch*height*width, e_dim = 256)
-        # dictionary_feature = dictionary_feature.view(-1, 256)
-        # [256, 256]
-        # dictionary_feature = dictionary_feature.cpu().numpy()
-
-        # feature labels
-        # feature_labels = output[2][2].cpu().numpy()
-
-        # dictionary
-        # dictionary = output[6].detach().cpu().numpy()
-        
-        # save_encoder_path = os.path.join(save_root, 'encoder_features')
-        # save_dictionary_path = os.path.join(save_root, 'dictionary_features')
-        # save_label_path = os.path.join(save_root, 'feature_labels')
-        # if not(os.path.exists(save_encoder_path)):
-        #     os.mkdir(save_encoder_path)
-        # if not(os.path.exists(save_dictionary_path)):
-        #     os.mkdir(save_dictionary_path)
-        # if not(os.path.exists(save_label_path)):
-        #     os.mkdir(save_label_path)    
-        # np.save(save_encoder_path + f'/{basename}.npy', encoder_feature)
-        # np.save(save_dictionary_path + f'/{basename}.npy', dictionary_feature)
-        # np.save(save_label_path + f'/{basename}.npy', feature_labels)
-        # if not(os.path.exists(save_root+'/dictionary.npy')):
-        #     np.save(save_root+'/dictionary.npy', dictionary)
-
         restored_face = restored_face.astype('uint8')
         face_helper.add_restored_face(restored_face)
 
         if suffix is not None:
-            save_face_name = f'{basename}_{idx:02d}_{suffix}.png'
+            save_face_name = f'{basename}_{git:02d}_{suffix}.png'
         else:
             save_face_name = f'{basename}_{idx:02d}.png'
         save_restore_path = os.path.join(save_root, 'restored_faces', save_face_name)

@@ -11,7 +11,7 @@ from basicsr.metrics.psnr_ssim import calculate_psnr, calculate_ssim
 
 root_path = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir, os.path.pardir))
 sys.path.append(root_path)
-sys.path.append(os.path.join(root_path, 'RestoreFormer/modules/losses'))
+sys.path.append(os.path.join(root_path, 'DAEFR/modules/losses'))
 
 from lpips import LPIPS
 
