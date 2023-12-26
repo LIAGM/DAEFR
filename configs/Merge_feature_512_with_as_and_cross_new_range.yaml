@@ -1,0 +1,128 @@
+model:
+  base_learning_rate: 4.5e-6 
+  target: DAEFR.models.vqgan_merge_with_as_and_cross.DAEFRModel
+  params:
+    image_key: 'lq'
+    ckpt_path: '/ssd1/yuju/DAEFR/experiments/2023-01-19_Dual_codebook_dis_start/checkpoints/last.ckpt'
+    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook_300/epoch=000129-Rec_loss=0.3460099399089813-Codebook_loss=0.012400745414197445.ckpt'
+    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/2023-01-19_Dual_codebook_dis_start/checkpoints/last.ckpt'
+    #ckpt_path: 'YOUR TRAINED HD DICTIONARY MODEL'
+    encoder_codebook_type: 'LQHQ'
+    # encoder_codebook_type: 'LQLQ'
+    # special_params_lr_scale: 10
+    special_params_lr_scale: 1
+    comp_params_lr_scale: 10
+    schedule_step: [4000000, 8000000]
+    ddconfig:
+      target: DAEFR.modules.vqvae.vqvae_arch.VQVAEGANMERGE
+      params:
+        embed_dim: 256
+        n_embed: 1024
+        double_z: False
+        z_channels: 256
+        resolution: 512
+        # resolution: 128
+        in_channels: 3
+        out_ch: 3
+        ch: 64
+        ch_mult: [ 1,2,2,4,4,8]  # num_down = len(ch_mult)-1
+        # ch_mult: [ 1,2,2,4]
+        num_res_blocks: 2
+        dropout: 0.0
+        attn_resolutions: [16]
+        enable_mid: True
+
+        fix_decoder: False
+        fix_codebook: False
+        fix_encoder: False
+        # head_size: 8
+
+    lossconfig:
+      target: DAEFR.modules.losses.vqperceptual.VQLPIPSWithDiscriminatorWithCompWithIdentity
+      params:
+        disc_conditional: False
+        disc_in_channels: 3
+        disc_start: 10001
+        # disc_start: 11
+        disc_weight: 0.8
+        codebook_weight: 1.0
+        use_actnorm: False
+    #     comp_weight: 1.5
+    #     comp_style_weight: 2e3 #2000.0
+    #     identity_weight: 3 #1.5
+    #     lpips_style_weight: 1e9
+    #     identity_model_path: experiments/pretrained_models/arcface_resnet18.pth
+    
+    # transformer_config:
+    #   target: DAEFR.modules.transformer.mingpt.GPT
+    #   params:
+    #     vocab_size: 1024
+    #     block_size: 512
+    #     n_layer: 12
+    #     n_head: 16
+    #     n_embd: 1024
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 2
+    num_workers: 8
+    train:
+      target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
+      params:
+        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512
+        io_backend:
+          type: disk
+        use_hflip: True
+        mean: [0.5, 0.5, 0.5]
+        std: [0.5, 0.5, 0.5]
+        out_size: 512
+
+        blur_kernel_size: [19,20]
+        kernel_list: ['iso', 'aniso']
+        kernel_prob: [0.5, 0.5]
+        blur_sigma: [0.1, 15]
+        downsample_range: [0.8, 30]
+        noise_range: [0, 20]
+        jpeg_range: [30, 100]
+
+        color_jitter_prob: ~
+        color_jitter_shift: 20
+        color_jitter_pt_prob: ~
+        gray_prob: ~
+        gt_gray: True
+
+        crop_components: True
+        component_path: experiments/pretrained_models/FFHQ_eye_mouth_landmarks_512.pth
+        eye_enlarge_ratio: 1.4
+
+
+    validation:
+      target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
+      params:
+        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512_validation
+        io_backend:
+          type: disk
+        use_hflip: False
+        mean: [0.5, 0.5, 0.5]
+        std: [0.5, 0.5, 0.5]
+        out_size: 512
+
+        blur_kernel_size: [19,20]
+        kernel_list: ['iso', 'aniso']
+        kernel_prob: [0.5, 0.5]
+        blur_sigma: [0.1, 15]
+        downsample_range: [0.8, 30]
+        noise_range: [0, 20]
+        jpeg_range: [30, 100]
+
+        # color jitter and gray
+        color_jitter_prob: ~
+        color_jitter_shift: 20
+        color_jitter_pt_prob: ~
+        gray_prob: ~
+        gt_gray: True
+
+        crop_components: False
+        component_path: experiments/pretrained_models/FFHQ_eye_mouth_landmarks_512.pth
+        eye_enlarge_ratio: 1.4
