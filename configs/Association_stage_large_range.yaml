@@ -3,10 +3,10 @@ model:
   target: DAEFR.models.vqgan_dual.DAEFRModel
   params:
     image_key: 'lq'
-    ckpt_path: '/ssd1/yuju/DAEFR/experiments/HQ_codebook_300/epoch=000129-Rec_loss=0.3460099399089813-Codebook_loss=0.012400745414197445.ckpt'
-    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook_300/epoch=000129-Rec_loss=0.3460099399089813-Codebook_loss=0.012400745414197445.ckpt'
+    # HQ codebook path
+    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook/HQ_codebook.ckpt'
+    # LQ codebook path
     ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/logs/2023-09-04T23-09-24_LQ_Dictionary_new_range/checkpoints/epoch=000241-Rec_loss=0.02687305212020874-Codebook_loss=0.019417351111769676.ckpt'
-    #ckpt_path: 'YOUR TRAINED HD DICTIONARY MODEL'
     encoder_codebook_type: 'LQHQ'
     schedule_step: [4000000, 8000000]
     ddconfig:
@@ -41,7 +41,6 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    # batch_size: 4
     batch_size: 2
     num_workers: 8
     train:
@@ -55,7 +54,7 @@ data:
         std: [0.5, 0.5, 0.5]
         out_size: 512
 
-        # new range
+        # large range
         blur_kernel_size: [19,20]
         kernel_list: ['iso', 'aniso']
         kernel_prob: [0.5, 0.5]
@@ -95,7 +94,7 @@ data:
         # noise_range: [0, 20]
         # jpeg_range: [60, 100]
 
-        # new range
+        # large range
         blur_kernel_size: [19,20]
         kernel_list: ['iso', 'aniso']
         kernel_prob: [0.5, 0.5]

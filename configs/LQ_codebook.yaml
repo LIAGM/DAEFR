@@ -1,11 +1,10 @@
-# Low Quality Dictionary
 model:
   base_learning_rate: 4.5e-6
   target: DAEFR.models.vqgan_origin.DAEFRModel
   params:
     image_key: 'gt'
-    schedule_step: [400000, 800000] # batchsize 16
-    # ignore_keys: ['vqvae.quantize.utility_counter']
+    # batchsize 16
+    schedule_step: [400000, 800000]
     ddconfig:
       target: DAEFR.modules.vqvae.vqvae_arch.VQVAEGAN
       params:
@@ -35,12 +34,10 @@ model:
         codebook_weight: 1.0
         use_actnorm: False
 
-
 data:
   target: main.DataModuleFromConfig
   params:
     batch_size: 3
-    #batch_size: 4
     num_workers: 8
     train:
       target: DAEFR.data.ffhq_degradation_dataset_LQ.FFHQDegradationDataset

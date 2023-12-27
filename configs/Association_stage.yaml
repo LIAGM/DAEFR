@@ -1,12 +1,14 @@
-# Low Quality Dictionary
 model:
   base_learning_rate: 4.5e-6
-  target: DAEFR.models.vqgan_origin.DAEFRModel
+  target: DAEFR.models.vqgan_dual.DAEFRModel
   params:
-    image_key: 'gt'
-    # schedule_step: [400000, 800000] # batchsize 16
-    schedule_step: [400000, 1200000] # batchsize 12
-    # ignore_keys: ['vqvae.quantize.utility_counter']
+    image_key: 'lq'
+    # HQ codebook path
+    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook/HQ_codebook.ckpt'
+    # LQ codebook path
+    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/LQ_codebook/LQ_codebook.ckpt'
+    encoder_codebook_type: 'LQHQ'
+    schedule_step: [4000000, 8000000]
     ddconfig:
       target: DAEFR.modules.vqvae.vqvae_arch.VQVAEGAN
       params:
@@ -27,24 +29,22 @@ model:
         fix_codebook: False
 
     lossconfig:
-      target: DAEFR.modules.losses.vqperceptual.VQLPIPSWithDiscriminatorWithCompWithIdentity
+      target: DAEFR.modules.losses.vqperceptual_dual.VQLPIPSWithDiscriminatorWithCompWithIdentity
       params:
         disc_conditional: False
         disc_in_channels: 3
-        disc_start: 30001
+        disc_start: 11
         disc_weight: 0.8
         codebook_weight: 1.0
         use_actnorm: False
 
-
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 3
-    #batch_size: 4
+    batch_size: 2
     num_workers: 8
     train:
-      target: DAEFR.data.ffhq_degradation_dataset_LQ.FFHQDegradationDataset
+      target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
       params:
         dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512
         io_backend:
@@ -54,23 +54,13 @@ data:
         std: [0.5, 0.5, 0.5]
         out_size: 512
 
-        # original
-        # blur_kernel_size: [19,20]
-        # kernel_list: ['iso', 'aniso']
-        # kernel_prob: [0.5, 0.5]
-        # blur_sigma: [0.1, 10]
-        # downsample_range: [0.8, 8]
-        # noise_range: [0, 20]
-        # jpeg_range: [60, 100]
-
-        # new range
         blur_kernel_size: [19,20]
         kernel_list: ['iso', 'aniso']
         kernel_prob: [0.5, 0.5]
-        blur_sigma: [0.1, 15]
-        downsample_range: [0.8, 30]
+        blur_sigma: [0.1, 10]
+        downsample_range: [0.8, 8]
         noise_range: [0, 20]
-        jpeg_range: [30, 100]
+        jpeg_range: [60, 100]
 
         color_jitter_prob: ~
         color_jitter_shift: 20
@@ -84,7 +74,7 @@ data:
 
 
     validation:
-      target: DAEFR.data.ffhq_degradation_dataset_LQ.FFHQDegradationDataset
+      target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
       params:
         dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512_validation
         io_backend:
@@ -94,23 +84,13 @@ data:
         std: [0.5, 0.5, 0.5]
         out_size: 512
 
-        # original
-        # blur_kernel_size: [19,20]
-        # kernel_list: ['iso', 'aniso']
-        # kernel_prob: [0.5, 0.5]
-        # blur_sigma: [0.1, 10]
-        # downsample_range: [0.8, 8]
-        # noise_range: [0, 20]
-        # jpeg_range: [60, 100]
-
-        # new range
         blur_kernel_size: [19,20]
         kernel_list: ['iso', 'aniso']
         kernel_prob: [0.5, 0.5]
-        blur_sigma: [0.1, 15]
-        downsample_range: [0.8, 30]
+        blur_sigma: [0.1, 10]
+        downsample_range: [0.8, 8]
         noise_range: [0, 20]
-        jpeg_range: [30, 100]
+        jpeg_range: [60, 100]
 
         # color jitter and gray
         color_jitter_prob: ~

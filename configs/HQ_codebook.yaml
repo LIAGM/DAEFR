@@ -3,8 +3,8 @@ model:
   target: DAEFR.models.vqgan_origin.DAEFRModel
   params:
     image_key: 'gt'
+    # batchsize 16
     schedule_step: [400000, 800000]
-    # ignore_keys: ['vqvae.quantize.utility_counter']
     ddconfig:
       target: DAEFR.modules.vqvae.vqvae_arch.VQVAEGAN
       params:
@@ -37,13 +37,12 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    # batch_size: 4
-    batch_size: 1
+    batch_size: 3
     num_workers: 8
     train:
       target: basicsr.data.ffhq_dataset.FFHQDataset
       params:
-        dataroot_gt: data/FFHQ/images512x512
+        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512
         io_backend:
           type: disk
         use_hflip: True
@@ -53,7 +52,7 @@ data:
     validation:
       target: basicsr.data.ffhq_dataset.FFHQDataset
       params:
-        dataroot_gt: data/FFHQ/images512x512_validation
+        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512_validation
         io_backend:
           type: disk
         use_hflip: False
