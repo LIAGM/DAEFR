@@ -5,42 +5,42 @@ from torch import nn, Tensor
 import torch.nn.functional as F
 from typing import Optional, List
 import pytorch_lightning as pl
-from main import instantiate_from_config
+from main_DAEFR import instantiate_from_config
 
 from DAEFR.modules.vqvae.utils import get_roi_regions
 
 from DAEFR.modules.vqvae.vqvae_arch import MultiHeadAttnBlock
 
 # codeformer code
-def calc_mean_std(feat, eps=1e-5):
-    """Calculate mean and std for adaptive_instance_normalization.
-    Args:
-        feat (Tensor): 4D tensor.
-        eps (float): A small value added to the variance to avoid
-            divide-by-zero. Default: 1e-5.
-    """
-    size = feat.size()
-    assert len(size) == 4, 'The input feature should be 4D tensor.'
-    b, c = size[:2]
-    feat_var = feat.view(b, c, -1).var(dim=2) + eps
-    feat_std = feat_var.sqrt().view(b, c, 1, 1)
-    feat_mean = feat.view(b, c, -1).mean(dim=2).view(b, c, 1, 1)
-    return feat_mean, feat_std
+# def calc_mean_std(feat, eps=1e-5):
+#     """Calculate mean and std for adaptive_instance_normalization.
+#     Args:
+#         feat (Tensor): 4D tensor.
+#         eps (float): A small value added to the variance to avoid
+#             divide-by-zero. Default: 1e-5.
+#     """
+#     size = feat.size()
+#     assert len(size) == 4, 'The input feature should be 4D tensor.'
+#     b, c = size[:2]
+#     feat_var = feat.view(b, c, -1).var(dim=2) + eps
+#     feat_std = feat_var.sqrt().view(b, c, 1, 1)
+#     feat_mean = feat.view(b, c, -1).mean(dim=2).view(b, c, 1, 1)
+#     return feat_mean, feat_std
 
 
-def adaptive_instance_normalization(content_feat, style_feat):
-    """Adaptive instance normalization.
-    Adjust the reference features to have the similar color and illuminations
-    as those in the degradate features.
-    Args:
-        content_feat (Tensor): The reference feature.
-        style_feat (Tensor): The degradate features.
-    """
-    size = content_feat.size()
-    style_mean, style_std = calc_mean_std(style_feat)
-    content_mean, content_std = calc_mean_std(content_feat)
-    normalized_feat = (content_feat - content_mean.expand(size)) / content_std.expand(size)
-    return normalized_feat * style_std.expand(size) + style_mean.expand(size)
+# def adaptive_instance_normalization(content_feat, style_feat):
+#     """Adaptive instance normalization.
+#     Adjust the reference features to have the similar color and illuminations
+#     as those in the degradate features.
+#     Args:
+#         content_feat (Tensor): The reference feature.
+#         style_feat (Tensor): The degradate features.
+#     """
+#     size = content_feat.size()
+#     style_mean, style_std = calc_mean_std(style_feat)
+#     content_mean, content_std = calc_mean_std(content_feat)
+#     normalized_feat = (content_feat - content_mean.expand(size)) / content_std.expand(size)
+#     return normalized_feat * style_std.expand(size) + style_mean.expand(size)
 
 
 class PositionEmbeddingSine(nn.Module):
@@ -132,22 +132,12 @@ class TransformerSALayer(nn.Module):
         tgt2 = self.linear2(self.dropout(self.activation(self.linear1(tgt2))))
         tgt = tgt + self.dropout2(tgt2)
         return tgt
-# codeformer code ------------------------
 
-
-
-
-def disabled_train(self, mode=True):
-    """Overwrite model.train with this function to make sure train/eval mode
-    does not change anymore."""
-    return self
 
 class DAEFRModel(pl.LightningModule):
     def __init__(self,
                  ddconfig,
                  lossconfig,
-                 transformer_config=None,
-                 cond_stage_config=None,
                  permuter_config=None,
                  ckpt_path=None,
                  ckpt_path_HQ=None,
@@ -169,17 +159,11 @@ class DAEFRModel(pl.LightningModule):
         self.image_key = image_key
         self.vqvae = instantiate_from_config(ddconfig)
 
-        # code transformer
-        # if transformer_config is not None:
-        #     self.transformer = instantiate_from_config(config=transformer_config)
-        # if cond_stage_config is not None:
-        #     self.init_cond_stage_from_ckpt(cond_stage_config)
         if permuter_config is None:
             permuter_config = {"target": "DAEFR.modules.transformer.permuter.Identity"}
         self.permuter = instantiate_from_config(config=permuter_config)
 
         lossconfig['params']['distill_param'] = ddconfig['params']
-        # self.loss = instantiate_from_config(lossconfig)
         # get the weights from HQ and LQ checkpoints
         if (ckpt_path_HQ is not None) and (ckpt_path_LQ is not None):
             self.init_from_ckpt_two(
@@ -200,14 +184,6 @@ class DAEFRModel(pl.LightningModule):
         self.schedule_step = schedule_step
 
         self.encoder_codebook_type = encoder_codebook_type
-
-        # self.linear_projection = nn.Sequential(
-        #     nn.Conv2d(in_channels=512, out_channels=256, kernel_size=1, stride=1, padding=0),
-        #     nn.LeakyReLU(0.2),
-        #     nn.Conv2d(in_channels=256, out_channels=256, kernel_size=1, stride=1, padding=0),
-        #     nn.LeakyReLU(0.2),
-        #     nn.Conv2d(in_channels=256, out_channels=256, kernel_size=1, stride=1, padding=0),
-        # )
 
         self.cross_attention = MultiHeadAttnBlock(in_channels=256,head_size=8)
 
@@ -251,8 +227,6 @@ class DAEFRModel(pl.LightningModule):
         keys = list(sd.keys())
 
         print('In single checkpoint load function-----------')
-        # import pdb
-        # pdb.set_trace()
 
         # HQLQ encoder + HQ decoder
         HQ_ignore_keys = ['vqvae.encoder',
@@ -394,11 +368,6 @@ class DAEFRModel(pl.LightningModule):
                           'vqvae.quantize.embedding.weight',
                           'vqvae.quant_conv.weight',
                           'vqvae.quant_conv.bias']
-        # LQ_ignore_keys = ['vqvae.decoder',
-        #                   'loss',
-        #                   'vqvae.quantize.embedding.weight',
-        #                   'vqvae.post_quant_conv.weight',
-        #                   'vqvae.post_quant_conv.bias']
 
         # From HQ checkpoint all: 460
         # From LQ checkpoint all: 921
@@ -406,11 +375,6 @@ class DAEFRModel(pl.LightningModule):
         # 'vqvae.decoder': 230
         # 'loss': 55
 
-        # under 128*128 size
-        # From checkpoint all: 368
-        # 'vqvae.encoder': 132
-        # 'vqvae.decoder': 176
-        # 'loss': 55
         HQ_count = {'vqvae.encoder': 0,
                     'vqvae.HQ_encoder': 0,
                     'vqvae.Fixed_encoder': 0,
@@ -456,8 +420,6 @@ class DAEFRModel(pl.LightningModule):
         print('origin HQ keys number =',len(HQ_keys))
         print('origin LQ keys number =',len(LQ_keys))
 
-        # import pdb
-        # pdb.set_trace()
 
         # replace keys in HQ Keys
         for k in HQ_keys:
@@ -482,8 +444,6 @@ class DAEFRModel(pl.LightningModule):
                     # sd_LQ[k.replace('vqvae.', 'vqvae.HQ_')] = sd_LQ[k]
                     del sd_LQ[k]
 
-        # import pdb
-        # pdb.set_trace()
 
         # delete and replace keys in LQ Keys (associated version)
         for k in LQ_keys:
@@ -497,18 +457,7 @@ class DAEFRModel(pl.LightningModule):
                     LQ_count[ik] = LQ_count[ik] - 1
                     # print("Deleting key {} from state_dict.".format(k))
                     del sd_LQ[k]
-        # stage one version--------------------------------------------------------
-        # for k in LQ_keys:
-        #     for ik in LQ_ignore_keys:
-        #         if (k == 'vqvae.quantize.embedding.weight') and k.startswith(ik):
-        #             LQ_count['vqvae.quantize.embedding.weight'] = LQ_count['vqvae.quantize.embedding.weight'] - 1
-        #             LQ_count['vqvae.LQ_quantize.embedding.weight'] = LQ_count['vqvae.LQ_quantize.embedding.weight'] + 1
-        #             sd_LQ[k.replace('vqvae.', 'vqvae.LQ_')] = sd_LQ[k]
-        #             del sd_LQ[k]
-        #         elif k.startswith(ik):
-        #             LQ_count[ik] = LQ_count[ik] - 1
-        #             # print("Deleting key {} from state_dict.".format(k))
-        #             del sd_LQ[k]
+
 
         keys = list(sd_LQ.keys())
         for k in keys:
@@ -520,8 +469,6 @@ class DAEFRModel(pl.LightningModule):
         
         # HQ keys = 460
         # LQ keys = 346+1
-        # import pdb
-        # pdb.set_trace()
 
         state_dict = self.state_dict()
         require_keys = state_dict.keys()
@@ -567,21 +514,11 @@ class DAEFRModel(pl.LightningModule):
         print(f"Number of LQ weight loaded = {LQ_Key_count}") # 346
         print(f"Number of all weight loaded = {count}")       # 751  
         print(f"Restored from {path_HQ} and {path_LQ}")
-
-    def init_cond_stage_from_ckpt(self, config):
-        model = instantiate_from_config(config)
-        model = model.eval()
-        model.train = disabled_train
-        self.cond_stage_model = model
     
     def forward(self, input, gt=None):
         # dec, diff, info, hs = self.vqvae(input)
         # return dec, diff, info, hs
-        
-        # import pdb
-        # pdb.set_trace()
 
-        # quant_z, z_indices, z_info, z_hs, z_h, z_dictionary = self.encode_to_z(input, self.encoder_codebook_type)
         if gt is not None:
             quant_gt, gt_indices, gt_info, gt_hs, gt_h, gt_dictionary = self.encode_to_gt(gt)
 
@@ -594,10 +531,6 @@ class DAEFRModel(pl.LightningModule):
         z_hs_HQ = self.vqvae.HQ_encoder(input)
         z_h_HQ = self.vqvae.HQ_quant_conv(z_hs_HQ['out'])
         
-        # concate features
-        # concat_feature = torch.cat((z_h, z_h_HQ), 1)
-        # Linear Projection
-        # out_feature = self.linear_projection(concat_feature)
         
         # Cross attention
         out_feature = self.cross_attention(z_h_HQ, z_h)
@@ -622,8 +555,6 @@ class DAEFRModel(pl.LightningModule):
         for layer in self.ft_layers:
             query_emb = layer(query_emb, query_pos=pos_emb)
 
-        # import pdb
-        # pdb.set_trace()
 
         # output logits
         logits = self.idx_pred_layer(query_emb) # (hw)bn
@@ -631,17 +562,6 @@ class DAEFRModel(pl.LightningModule):
 
         BCE_loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), gt_indices.view(-1))
 
-        code_only=False
-        if code_only: # for training stage II
-          # logits doesn't need softmax before cross_entropy loss
-            return logits, lq_feat
-
-        # ################# Quantization ###################
-        # if self.training:
-        #     quant_feat = torch.einsum('btn,nc->btc', [soft_one_hot, self.quantize.embedding.weight])
-        #     # b(hw)c -> bc(hw) -> bchw
-        #     quant_feat = quant_feat.permute(0,2,1).view(lq_feat.shape)
-        # ------------
         soft_one_hot = F.softmax(logits, dim=2)
         _, top_idx = torch.topk(soft_one_hot, 1, dim=2)
         # get index from origin HQ codebook
@@ -653,41 +573,12 @@ class DAEFRModel(pl.LightningModule):
         quant_feat = lq_feat + (quant_feat - lq_feat).detach()
         dec = self.vqvae.decode(quant_feat)
 
-        # codeformer code --------------------------------
-
-        # cz_indices = torch.cat((z_indices, z_indices), dim=1)
-        # logits, loss = self.transformer(z_indices, targets=gt_indices)
-        # logits = logits[:, gt_indices.shape[1]-1:]
-        # temperature = 1.0
-        # logits = logits / temperature
-        # probs = F.softmax(logits, dim=-1)
-        # _, index = torch.topk(probs, k=1, dim=-1)
-        # bhwc = (quant_z.shape[0],quant_z.shape[2],quant_z.shape[3],quant_z.shape[1])
-        # quant_feat = self.vqvae.quantize.get_codebook_entry(
-        #     index.reshape(-1), shape=bhwc)
-        # quant_feat = quant_z + (quant_feat - quant_z).detach()
-        # dec = self.vqvae.decode(quant_feat)
-
         # dec, diff, info, hs, h, quant, dictionary = self.vqvae(input)
         # return dec, diff, info, hs, h, quant, dictionary
         return dec, BCE_loss, L2_loss, z_info, z_hs, z_h, quant_z, z_dictionary
 
     @torch.no_grad()
-    def encode_to_z(self, x, encoder_codebook_type):
-        # import pdb
-        # pdb.set_trace()
-        if (encoder_codebook_type is not None) and (encoder_codebook_type == 'LQHQ'):
-            quant_z, _, info, hs, h, dictionary = self.vqvae.encode(x)
-        if (encoder_codebook_type is not None) and (encoder_codebook_type == 'LQLQ'):
-            quant_z, _, info, hs, h, dictionary = self.vqvae.LQ_encode(x)    
-        indices = info[2].view(quant_z.shape[0], -1)
-        indices = self.permuter(indices)
-        return quant_z, indices, info, hs, h, dictionary
-
-    @torch.no_grad()
     def encode_to_gt(self, gt):
-        # import pdb
-        # pdb.set_trace()
         quant_gt, _, info, hs, h, dictionary = self.vqvae.HQ_encode(gt)
         indices = info[2].view(quant_gt.shape[0], -1)
         indices = self.permuter(indices)
@@ -729,10 +620,6 @@ class DAEFRModel(pl.LightningModule):
                    "train/Rec_loss": rec_loss.detach().mean()
                 }
             
-            # autoencode
-            # aeloss, log_dict_ae = self.loss(qloss, x, xrec, components, optimizer_idx, self.global_step,
-            #                                 last_layer=self.get_last_layer(), split="train")
-
             bce_loss = log_dict_ae["train/BCE_loss"]
             self.log("BCE_loss", bce_loss, prog_bar=True,
                      logger=True, on_step=True, on_epoch=True)
@@ -745,8 +632,6 @@ class DAEFRModel(pl.LightningModule):
             self.log("Rec_loss", Rec_loss, prog_bar=True,
                      logger=True, on_step=True, on_epoch=True)
 
-            # self.log("train/aeloss", aeloss, prog_bar=True,
-            #          logger=True, on_step=True, on_epoch=True)
             self.log_dict(log_dict_ae, prog_bar=False,
                           logger=True, on_step=True, on_epoch=True)
             return aeloss
@@ -806,19 +691,6 @@ class DAEFRModel(pl.LightningModule):
         if self.image_key != 'gt':
             x = batch['gt']
 
-        # aeloss, log_dict_ae = self.loss(qloss, x, xrec, None, 0, self.global_step,
-        #                                 last_layer=self.get_last_layer(), split="val")
-
-        # discloss, log_dict_disc = self.loss(qloss, x, xrec, None, 1, self.global_step,
-        #                                     last_layer=None, split="val")
-        # rec_loss = log_dict_ae["val/rec_loss"]
-        # self.log("val/rec_loss", rec_loss,
-        #          prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
-        # self.log("val/aeloss", aeloss,
-        #          prog_bar=True, logger=True, on_step=True, on_epoch=True, sync_dist=True)
-        # self.log_dict(log_dict_ae)
-        # self.log_dict(log_dict_disc)
-
         rec_loss = (torch.abs(gt.contiguous() - xrec.contiguous()))
 
         log_dict_ae = {
@@ -832,12 +704,6 @@ class DAEFRModel(pl.LightningModule):
 
     def configure_optimizers(self):
         lr = self.learning_rate
-
-        # under 128*128 size
-        # From checkpoint all: 368
-        # 'vqvae.encoder': 132
-        # 'vqvae.decoder': 176
-        # 'loss': 55
 
         normal_params = []
         special_params = []
@@ -861,15 +727,7 @@ class DAEFRModel(pl.LightningModule):
                 # print(name)
             else:
                 normal_params.append(param)
-        # import pdb
-        # pdb.set_trace()
-        
-        # self.linear_projection
-        # for name, param in self.linear_projection.named_parameters():
-        #     if not param.requires_grad:
-        #         continue
-        #     else:
-        #         normal_params.append(param) 
+
 
         # self.cross_attention
         for name, param in self.cross_attention.named_parameters():
@@ -879,11 +737,6 @@ class DAEFRModel(pl.LightningModule):
                 normal_params.append(param) 
 
         # transformer part--------------------------------
-        
-        # self.position_emb
-        # self.feat_emb
-        # self.ft_layers
-        # self.idx_pred_layer
         
         normal_params.append(self.position_emb)   
         
@@ -905,27 +758,12 @@ class DAEFRModel(pl.LightningModule):
             else:
                 normal_params.append(param)                 
         
-        # import pdb
-        # pdb.set_trace()
-        
         # print('special_params', special_params)
         opt_ae_params = [{'params': normal_params, 'lr': lr}]
-                        #  {'params': special_params, 'lr': lr*self.special_params_lr_scale}]
-                        # {'params': special_params, 'lr': 0.0}]
+
         opt_ae = torch.optim.Adam(opt_ae_params, betas=(0.5, 0.9))
 
-        # opt_disc = torch.optim.Adam(self.loss.discriminator.parameters(),
-        #                             lr=lr, betas=(0.5, 0.9))
-
-        # optimizations = [opt_ae, opt_disc]
         optimizations = opt_ae
-
-        # s0 = torch.optim.lr_scheduler.MultiStepLR(
-        #     opt_ae, milestones=self.schedule_step, gamma=0.1, verbose=True)
-        # s1 = torch.optim.lr_scheduler.MultiStepLR(
-        #     opt_disc, milestones=self.schedule_step, gamma=0.1, verbose=True)
-        # schedules = [s0, s1]
-        # schedules = s0
 
         if self.use_facial_disc:
             opt_l = torch.optim.Adam(self.loss.net_d_left_eye.parameters(),

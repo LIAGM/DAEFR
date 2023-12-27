@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from main import instantiate_from_config
+from main_DAEFR import instantiate_from_config
 
 from DAEFR.modules.vqvae.utils import get_roi_regions
 
