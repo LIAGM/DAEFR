@@ -457,7 +457,7 @@ if __name__ == "__main__":
             gpuinfo = trainer_config["gpus"]
             print(f"Running on GPUs {gpuinfo}")
             cpu = False
-        trainer_config["max_epochs"] = 100
+        trainer_config["max_epochs"] = config.model.max_epochs
         trainer_opt = argparse.Namespace(**trainer_config)
         lightning_config.trainer = trainer_config
         if opt.resume:
@@ -527,7 +527,7 @@ if __name__ == "__main__":
         # add callback which sets up log directory
         default_callbacks_cfg = {
             "setup_callback": {
-                "target": "main.SetupCallback",
+                "target": "main_DAEFR.SetupCallback",
                 "params": {
                     "resume": opt.resume,
                     "now": now,
@@ -539,7 +539,7 @@ if __name__ == "__main__":
                 }
             },
             "image_logger": {
-                "target": "main.ImageLogger",
+                "target": "main_DAEFR.ImageLogger",
                 "params": {
                     "batch_frequency": 750,
                     "max_images": 4,
@@ -547,7 +547,7 @@ if __name__ == "__main__":
                 }
             },
             "learning_rate_logger": {
-                "target": "main.LearningRateMonitor",
+                "target": "main_DAEFR.LearningRateMonitor",
                 "params": {
                     "logging_interval": "step",
                     #"log_momentum": True

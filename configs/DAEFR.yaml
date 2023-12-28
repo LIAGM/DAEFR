@@ -1,11 +1,11 @@
 model:
   base_learning_rate: 4.5e-6 
+  max_epochs: 100
   target: DAEFR.models.daefr.DAEFRModel
   params:
     image_key: 'lq'
-    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook_300/epoch=000129-Rec_loss=0.3460099399089813-Codebook_loss=0.012400745414197445.ckpt'
-    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/2023-01-19_Dual_codebook_dis_start/checkpoints/last.ckpt'
-    encoder_codebook_type: 'LQHQ'
+    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook/HQ_codebook.ckpt'
+    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/Association_stage/Association_stage.ckpt'
     special_params_lr_scale: 1
     comp_params_lr_scale: 10
     schedule_step: [4000000, 8000000]
@@ -43,14 +43,14 @@ model:
 
 
 data:
-  target: main.DataModuleFromConfig
+  target: main_DAEFR.DataModuleFromConfig
   params:
     batch_size: 2
     num_workers: 8
     train:
       target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512
         io_backend:
           type: disk
         use_hflip: True
@@ -80,7 +80,7 @@ data:
     validation:
       target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512_validation
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512_validation
         io_backend:
           type: disk
         use_hflip: False

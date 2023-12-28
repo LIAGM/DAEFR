@@ -1,5 +1,6 @@
 model:
   base_learning_rate: 4.5e-6
+  max_epochs: 330
   target: DAEFR.models.vqgan_origin.DAEFRModel
   params:
     image_key: 'gt'
@@ -35,14 +36,14 @@ model:
         use_actnorm: False
 
 data:
-  target: main.DataModuleFromConfig
+  target: main_for_codebook.DataModuleFromConfig
   params:
     batch_size: 3
     num_workers: 8
     train:
       target: basicsr.data.ffhq_dataset.FFHQDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512
         io_backend:
           type: disk
         use_hflip: True
@@ -50,12 +51,31 @@ data:
         std: [0.5, 0.5, 0.5]
         out_size: 512
     validation:
-      target: basicsr.data.ffhq_dataset.FFHQDataset
+      target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512_validation
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512_validation
         io_backend:
           type: disk
         use_hflip: False
         mean: [0.5, 0.5, 0.5]
         std: [0.5, 0.5, 0.5]
         out_size: 512
+
+        blur_kernel_size: [19,20]
+        kernel_list: ['iso', 'aniso']
+        kernel_prob: [0.5, 0.5]
+        blur_sigma: [0.1, 10]
+        downsample_range: [0.8, 8]
+        noise_range: [0, 20]
+        jpeg_range: [60, 100]
+
+        # color jitter and gray
+        color_jitter_prob: ~
+        color_jitter_shift: 20
+        color_jitter_pt_prob: ~
+        gray_prob: ~
+        gt_gray: True
+
+        crop_components: False
+        component_path: experiments/pretrained_models/FFHQ_eye_mouth_landmarks_512.pth
+        eye_enlarge_ratio: 1.4

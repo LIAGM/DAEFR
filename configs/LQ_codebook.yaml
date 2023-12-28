@@ -1,5 +1,6 @@
 model:
   base_learning_rate: 4.5e-6
+  max_epochs: 250
   target: DAEFR.models.vqgan_origin.DAEFRModel
   params:
     image_key: 'gt'
@@ -35,14 +36,14 @@ model:
         use_actnorm: False
 
 data:
-  target: main.DataModuleFromConfig
+  target: main_for_codebook.DataModuleFromConfig
   params:
     batch_size: 3
     num_workers: 8
     train:
       target: DAEFR.data.ffhq_degradation_dataset_LQ.FFHQDegradationDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512
         io_backend:
           type: disk
         use_hflip: True
@@ -72,7 +73,7 @@ data:
     validation:
       target: DAEFR.data.ffhq_degradation_dataset_LQ.FFHQDegradationDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512_validation
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512_validation
         io_backend:
           type: disk
         use_hflip: False

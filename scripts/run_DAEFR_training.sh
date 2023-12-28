@@ -5,8 +5,8 @@ conf_name='DAEFR'
 
 ROOT_PATH='/ssd1/yuju/DAEFR/experiments/' # The path for saving model and logs
 
-#gpus='0,1,2,3'
-gpus='0,'
+gpus='0,1,2,3'
+# gpus='0,'
 
 #P: pretrain SL: soft learning
 node_n=1

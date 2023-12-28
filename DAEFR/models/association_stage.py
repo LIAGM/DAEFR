@@ -16,7 +16,6 @@ class DAEFRModel(pl.LightningModule):
                  lossconfig,
                  ckpt_path_HQ=None,
                  ckpt_path_LQ=None,
-                 encoder_codebook_type=None,
                  ignore_keys=[],
                  image_key="lq",
                  colorize_nlabels=None,
@@ -57,8 +56,6 @@ class DAEFRModel(pl.LightningModule):
         self.special_params_lr_scale = special_params_lr_scale
         self.comp_params_lr_scale = comp_params_lr_scale
         self.schedule_step = schedule_step
-
-        self.encoder_codebook_type = encoder_codebook_type
 
 
 

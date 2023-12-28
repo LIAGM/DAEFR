@@ -110,7 +110,6 @@ class DAEFRModel(pl.LightningModule):
                  lossconfig,
                  ckpt_path_HQ=None,
                  ckpt_path_LQ=None,
-                 encoder_codebook_type=None,
                  ignore_keys=[],
                  image_key="lq",
                  colorize_nlabels=None,
@@ -145,7 +144,6 @@ class DAEFRModel(pl.LightningModule):
         self.comp_params_lr_scale = comp_params_lr_scale
         self.schedule_step = schedule_step
 
-        self.encoder_codebook_type = encoder_codebook_type
 
         self.cross_attention = MultiHeadAttnBlock(in_channels=256,head_size=8)
 
@@ -523,7 +521,7 @@ class DAEFRModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x = batch[self.image_key]
         gt = batch['gt']
-        
+
         xrec, BCE_loss, L2_loss, info, hs,_,_,_ = self(x, gt)
 
         qloss = BCE_loss + L2_loss

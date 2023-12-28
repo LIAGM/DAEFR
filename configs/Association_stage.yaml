@@ -1,5 +1,6 @@
 model:
   base_learning_rate: 4.5e-6
+  max_epochs: 50
   target: DAEFR.models.association_stage.DAEFRModel
   params:
     image_key: 'lq'
@@ -7,7 +8,6 @@ model:
     ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook/HQ_codebook.ckpt'
     # LQ codebook path
     ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/LQ_codebook/LQ_codebook.ckpt'
-    encoder_codebook_type: 'LQHQ'
     schedule_step: [4000000, 8000000]
     ddconfig:
       target: DAEFR.modules.vqvae.vqvae_arch.VQVAEGAN
@@ -39,14 +39,14 @@ model:
         use_actnorm: False
 
 data:
-  target: main.DataModuleFromConfig
+  target: main_for_association.DataModuleFromConfig
   params:
     batch_size: 2
     num_workers: 8
     train:
       target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512
         io_backend:
           type: disk
         use_hflip: True
@@ -76,7 +76,7 @@ data:
     validation:
       target: DAEFR.data.ffhq_degradation_dataset.FFHQDegradationDataset
       params:
-        dataroot_gt: /ssd1/yuju/dataset/FFHQ/images512x512_validation
+        dataroot_gt: /ssd2/yuju/RestoreFormer/data/FFHQ/images512x512_validation
         io_backend:
           type: disk
         use_hflip: False
