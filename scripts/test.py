@@ -7,7 +7,7 @@ import pdb
 
 sys.path.append(os.getcwd())
 
-from main import instantiate_from_config, DataModuleFromConfig
+from main_DAEFR import instantiate_from_config, DataModuleFromConfig
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 from tqdm import trange, tqdm
@@ -67,7 +67,7 @@ def restoration(model,
         face_helper.add_restored_face(restored_face)
 
         if suffix is not None:
-            save_face_name = f'{basename}_{git:02d}_{suffix}.png'
+            save_face_name = f'{basename}_{idx:02d}_{suffix}.png'
         else:
             save_face_name = f'{basename}_{idx:02d}.png'
         save_restore_path = os.path.join(save_root, 'restored_faces', save_face_name)
@@ -146,6 +146,12 @@ def load_model_from_config(config, sd, gpu=True, eval_mode=True):
     if "ckpt_path" in config.params:
         print("Deleting the restore-ckpt path from the config...")
         config.params.ckpt_path = None
+    if "ckpt_path_HQ" in config.params:
+        print("Deleting the HQ restore-ckpt path from the config...")
+        config.params.ckpt_path_HQ = None
+    if "ckpt_path_LQ" in config.params:
+        print("Deleting the LQ restore-ckpt path from the config...")
+        config.params.ckpt_path_LQ = None
     if "downsample_cond_size" in config.params:
         print("Deleting downsample-cond-size from the config and setting factor=0.5 instead...")
         config.params.downsample_cond_size = -1
@@ -167,7 +173,9 @@ def load_model_from_config(config, sd, gpu=True, eval_mode=True):
         state_dict = model.state_dict()
         require_keys = state_dict.keys()
         keys = sd.keys()
+        print('keys number =',len(keys))
         un_pretrained_keys = []
+        count = 0
         for k in require_keys:
             if k not in keys: 
                 # miss 'vqvae.'
@@ -176,8 +184,9 @@ def load_model_from_config(config, sd, gpu=True, eval_mode=True):
                 else:
                     un_pretrained_keys.append(k)
             else:
+                count = count + 1
                 state_dict[k] = sd[k]
-
+        print('Total keys loaded = ', count)
         # print(f'*************************************************')
         # print(f"Layers without pretraining: {un_pretrained_keys}")
         # print(f'*************************************************')

@@ -1,34 +1,31 @@
 #!/bin/bash
 
-# root='results'
-# out_root='results/metrics'
+root='results'
+out_root='results/metrics'
 
-root='results_dual_new_ep_98'
-out_root='results_dual_new_ep_98/metrics'
-
-# root='/ssd2/yuju/PSFRGAN/results/'
-# out_root='/ssd2/yuju/PSFRGAN/results/metrics'
+if [ ! -d $root ];then
+    mkdir -p $root
+fi
 
 if [ ! -d $out_root ];then
     mkdir -p $out_root
 fi
 
-# dataset_name_array=('self_celeba_v2' 'child' 'lfw' 'lfw_crop' 'web' 'wider')
+
 dataset_name_array=('self_celeba_v2' 'lfw' 'lfw_crop' 'wider' 'BRIAR')
-# dataset_name_array=('self_celeba')
-# dataset_location_array=('self_celeba_512' 'Child' 'lfw' 'lfw_cropped_faces' 'WebPhoto-Test' 'Wider-Test')
+
 dataset_location_array=('self_celeba_512_v2' 'lfw' 'lfw_cropped_faces' 'Wider-Test' 'mix_briar_128')
-# dataset_location_array=('self_celeba_512')
+
 
 # checkpoint=${1}
 # config=${2}
 # output_name=${3}
 # GPU=${4}
 
-checkpoint='/ssd1/yuju/RestoreFormer/experiments/logs/2023-11-29T12-34-27_Merge_feature_512_with_as_and_cross_dual_new_range/checkpoints/epoch=000098-Rec_loss=0.1075163334608078-BCE_loss=3.9325973987579346-L2_loss=0.10661053657531738.ckpt'
-config='/ssd1/yuju/RestoreFormer/configs/Merge_feature_512_with_as_and_cross_dual_new_range.yaml'
-output_name='DAEFR_dual_new_range_ep_98'
-GPU='0'
+checkpoint='/ssd1/yuju/DAEFR/experiments/DAEFR_model/DAEFR_model.ckpt'
+config='/ssd1/yuju/DAEFR/configs/DAEFR.yaml'
+output_name='DAEFR'
+GPU='4'
 
 # echo ${0}
 echo ${checkpoint}
@@ -43,7 +40,7 @@ do
 # echo ${dataset_location_array[${i}]}
 
 outdir=$root'/'$output_name'_'${dataset_name_array[${i}]}
-align_test_path='./data/'${dataset_location_array[${i}]}
+align_test_path='/ssd2/yuju/RestoreFormer/data/'${dataset_location_array[${i}]}
 
 
 # echo ${outdir}
@@ -101,8 +98,7 @@ need_post=1
 out_name=$outdir
 # echo $outdir $out_name
 
-#CelebAHQ_GT='/ssd2/yuju/RestoreFormer/data/FFHQ-BRIAR/Yu-Ju/images512x512'
-CelebAHQ_GT='/ssd1/yuju/RestoreFormer/data/celeba_512_validation'
+CelebAHQ_GT='/ssd2/yuju/RestoreFormer/data/celeba_512_validation'
 
 # FID
 CUDA_VISIBLE_DEVICES=$GPU python -u scripts/metrics/cal_fid.py \
