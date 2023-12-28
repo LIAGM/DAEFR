@@ -1,6 +1,6 @@
 model:
   base_learning_rate: 4.5e-6
-  target: DAEFR.models.vqgan_dual.DAEFRModel
+  target: DAEFR.models.association_stage.DAEFRModel
   params:
     image_key: 'lq'
     # HQ codebook path

@@ -464,7 +464,6 @@ if __name__ == "__main__":
         if opt.resume:
             print('====== Resume from last checkpoint and delete the default one ======')
             print(f'====== Resume from {opt.resume} ======')
-            config.model.params.ckpt_path = None
             config.model.params.ckpt_path_HQ = None
             config.model.params.ckpt_path_LQ = None
         # model

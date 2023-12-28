@@ -26,7 +26,6 @@ class DAEFRModel(pl.LightningModule):
         self.loss = instantiate_from_config(lossconfig)
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
-
         
         if ('comp_weight' in lossconfig['params'] and lossconfig['params']['comp_weight']) or ('comp_style_weight' in lossconfig['params'] and lossconfig['params']['comp_style_weight']):
             self.use_facial_disc = True

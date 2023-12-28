@@ -11,36 +11,6 @@ from DAEFR.modules.vqvae.utils import get_roi_regions
 
 from DAEFR.modules.vqvae.vqvae_arch import MultiHeadAttnBlock
 
-# codeformer code
-# def calc_mean_std(feat, eps=1e-5):
-#     """Calculate mean and std for adaptive_instance_normalization.
-#     Args:
-#         feat (Tensor): 4D tensor.
-#         eps (float): A small value added to the variance to avoid
-#             divide-by-zero. Default: 1e-5.
-#     """
-#     size = feat.size()
-#     assert len(size) == 4, 'The input feature should be 4D tensor.'
-#     b, c = size[:2]
-#     feat_var = feat.view(b, c, -1).var(dim=2) + eps
-#     feat_std = feat_var.sqrt().view(b, c, 1, 1)
-#     feat_mean = feat.view(b, c, -1).mean(dim=2).view(b, c, 1, 1)
-#     return feat_mean, feat_std
-
-
-# def adaptive_instance_normalization(content_feat, style_feat):
-#     """Adaptive instance normalization.
-#     Adjust the reference features to have the similar color and illuminations
-#     as those in the degradate features.
-#     Args:
-#         content_feat (Tensor): The reference feature.
-#         style_feat (Tensor): The degradate features.
-#     """
-#     size = content_feat.size()
-#     style_mean, style_std = calc_mean_std(style_feat)
-#     content_mean, content_std = calc_mean_std(content_feat)
-#     normalized_feat = (content_feat - content_mean.expand(size)) / content_std.expand(size)
-#     return normalized_feat * style_std.expand(size) + style_mean.expand(size)
 
 
 class PositionEmbeddingSine(nn.Module):
@@ -138,8 +108,6 @@ class DAEFRModel(pl.LightningModule):
     def __init__(self,
                  ddconfig,
                  lossconfig,
-                 permuter_config=None,
-                 ckpt_path=None,
                  ckpt_path_HQ=None,
                  ckpt_path_LQ=None,
                  encoder_codebook_type=None,
@@ -159,17 +127,11 @@ class DAEFRModel(pl.LightningModule):
         self.image_key = image_key
         self.vqvae = instantiate_from_config(ddconfig)
 
-        if permuter_config is None:
-            permuter_config = {"target": "DAEFR.modules.transformer.permuter.Identity"}
-        self.permuter = instantiate_from_config(config=permuter_config)
-
         lossconfig['params']['distill_param'] = ddconfig['params']
         # get the weights from HQ and LQ checkpoints
         if (ckpt_path_HQ is not None) and (ckpt_path_LQ is not None):
             self.init_from_ckpt_two(
                 ckpt_path_HQ, ckpt_path_LQ, ignore_keys=ignore_keys)
-        elif ckpt_path is not None:
-            self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
 
         if ('comp_weight' in lossconfig['params'] and lossconfig['params']['comp_weight']) or ('comp_style_weight' in lossconfig['params'] and lossconfig['params']['comp_style_weight']):
             self.use_facial_disc = True
@@ -220,127 +182,7 @@ class DAEFRModel(pl.LightningModule):
             module.bias.data.zero_()
             module.weight.data.fill_(1.0)
 
-# codeformer code-----------------------------------
 
-    def init_from_ckpt(self, path, ignore_keys=list()):
-        sd = torch.load(path, map_location="cpu")["state_dict"]
-        keys = list(sd.keys())
-
-        print('In single checkpoint load function-----------')
-
-        # HQLQ encoder + HQ decoder
-        HQ_ignore_keys = ['vqvae.encoder',
-                          'vqvae.quant_conv.weight',
-                          'vqvae.quant_conv.bias']
-        LQ_ignore_keys = ['loss_LQ',
-                          'vqvae_LQ.quantize.embedding.weight',
-                          'vqvae_LQ.post_quant_conv.weight',
-                          'vqvae_LQ.post_quant_conv.bias',
-                          'vqvae_LQ.decoder']
-
-        print("All keys before delete = ", len(keys))
-        # From checkpoint all: 921
-        # 'vqvae.encoder': 170
-        # 'vqvae.decoder': 230
-        # 'loss': 55
-        HQ_count = {'vqvae.encoder': 0,
-                    'vqvae.HQ_encoder': 0,
-                    'vqvae.decoder': 0,
-                    'loss': 0,
-                    'vqvae.quant_conv.weight': 0,
-                    'vqvae.quant_conv.bias': 0,
-                    'vqvae.HQ_quant_conv.weight': 0,
-                    'vqvae.HQ_quant_conv.bias': 0,
-                    'vqvae.quantize.embedding.weight': 0,
-                    'vqvae.post_quant_conv.weight': 0,
-                    'vqvae.post_quant_conv.bias': 0}
-        LQ_count = {'vqvae_LQ.encoder': 0,
-                    'vqvae_LQ.decoder': 0,
-                    'loss_LQ': 0,
-                    'vqvae_LQ.quant_conv.weight': 0,
-                    'vqvae_LQ.quant_conv.bias': 0,
-                    'vqvae_LQ.quantize.embedding.weight': 0,
-                    'vqvae_LQ.LQ_quantize.embedding.weight': 0,
-                    'vqvae_LQ.post_quant_conv.weight': 0,
-                    'vqvae_LQ.post_quant_conv.bias': 0}
-
-        # delete and replace keys in HQ Keys
-        for k in keys:
-            for ik in HQ_ignore_keys:
-                if k.startswith(ik):
-                    HQ_count[ik] = HQ_count[ik] + 1
-                    HQ_count[ik.replace('vqvae.', 'vqvae.HQ_')] = HQ_count[ik.replace('vqvae.', 'vqvae.HQ_')] + 1
-                    # print("Deleting key {} from state_dict.".format(k))
-                    sd[k.replace('vqvae.', 'vqvae.HQ_')] = sd[k]
-                    del sd[k]
-       
-        
-        delete_LQ_keys = 0
-        # delete and replace keys in LQ Keys
-        for k in keys:
-            for ik in LQ_ignore_keys:
-                if (k == 'vqvae_LQ.quantize.embedding.weight') and k.startswith(ik):
-                    LQ_count['vqvae_LQ.quantize.embedding.weight'] = LQ_count['vqvae_LQ.quantize.embedding.weight'] + 1
-                    LQ_count['vqvae_LQ.LQ_quantize.embedding.weight'] = LQ_count['vqvae_LQ.LQ_quantize.embedding.weight'] + 1
-                    sd[k.replace('vqvae_LQ.', 'vqvae.LQ_')] = sd[k]
-                    del sd[k]
-                elif k.startswith(ik):
-                    LQ_count[ik] = LQ_count[ik] + 1
-                    delete_LQ_keys = delete_LQ_keys + 1
-                    # print("Deleting key {} from state_dict.".format(k))
-                    del sd[k]
-        
-        keys = list(sd.keys())
-        print('key number before rename = ',len(keys))
-        
-        print('Delete LQ keys number = ', delete_LQ_keys)
-        # Remain keys---------
-        # HQ keys = 460
-        # LQ keys = 173
-        
-        # import pdb
-        # pdb.set_trace()
-
-        for k in keys:
-            if k.startswith("vqvae_LQ"):
-                # LQ_count[k] = LQ_count[k] + 1
-                # print("Deleting key {} from state_dict.".format(k))
-                sd[k.replace('vqvae_LQ.', 'vqvae.')] = sd[k]
-                del sd[k]
-        
-        # for k in keys:
-        #     for ik in ignore_keys:
-        #         if k.startswith(ik):
-        #             print("Deleting key {} from state_dict.".format(k))
-        #             del sd[k]
-
-        # import pdb
-        # pdb.set_trace()
-
-        state_dict = self.state_dict()
-        require_keys = state_dict.keys()
-        keys = sd.keys()
-        un_pretrained_keys = []
-        count = 0
-        for k in require_keys:
-            if k not in keys:
-                # miss 'vqvae.'
-                if k[6:] in keys:
-                    state_dict[k] = sd[k[6:]]
-                else:
-                    un_pretrained_keys.append(k)
-            else:
-                count = count + 1
-                state_dict[k] = sd[k]
-
-        print('State keys number =',len(state_dict))
-        # count = 633
-        print('keys loaded = ', count)
-        # print(f'*************************************************')
-        # print(f"Layers without pretraining: {un_pretrained_keys}")
-        # print(f'*************************************************')
-        self.load_state_dict(state_dict, strict=True)
-        print(f"Restored from {path}")
 
     def init_from_ckpt_two(self, path_HQ, path_LQ, ignore_keys=list()):
 
@@ -538,7 +380,7 @@ class DAEFRModel(pl.LightningModule):
         # origin HQ codebook for index
         quant_z, emb_loss, z_info, z_dictionary = self.vqvae.Fixed_quantize(z_h)
         indices = z_info[2].view(quant_z.shape[0], -1)
-        z_indices = self.permuter(indices)
+        z_indices = indices
 
         if gt is None:
             quant_gt = quant_z
@@ -573,15 +415,12 @@ class DAEFRModel(pl.LightningModule):
         quant_feat = lq_feat + (quant_feat - lq_feat).detach()
         dec = self.vqvae.decode(quant_feat)
 
-        # dec, diff, info, hs, h, quant, dictionary = self.vqvae(input)
-        # return dec, diff, info, hs, h, quant, dictionary
         return dec, BCE_loss, L2_loss, z_info, z_hs, z_h, quant_z, z_dictionary
 
     @torch.no_grad()
     def encode_to_gt(self, gt):
         quant_gt, _, info, hs, h, dictionary = self.vqvae.HQ_encode(gt)
         indices = info[2].view(quant_gt.shape[0], -1)
-        indices = self.permuter(indices)
         return quant_gt, indices, info, hs, h, dictionary
 
     def training_step(self, batch, batch_idx, optimizer_idx=None):
@@ -684,6 +523,7 @@ class DAEFRModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x = batch[self.image_key]
         gt = batch['gt']
+        
         xrec, BCE_loss, L2_loss, info, hs,_,_,_ = self(x, gt)
 
         qloss = BCE_loss + L2_loss

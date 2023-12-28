@@ -1,9 +1,8 @@
 model:
   base_learning_rate: 4.5e-6 
-  target: DAEFR.models.vqgan_merge_with_as_and_cross.DAEFRModel
+  target: DAEFR.models.daefr.DAEFRModel
   params:
     image_key: 'lq'
-    ckpt_path: '/ssd1/yuju/DAEFR/experiments/2023-01-19_Dual_codebook_dis_start/checkpoints/last.ckpt'
     ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook_300/epoch=000129-Rec_loss=0.3460099399089813-Codebook_loss=0.012400745414197445.ckpt'
     ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/2023-01-19_Dual_codebook_dis_start/checkpoints/last.ckpt'
     encoder_codebook_type: 'LQHQ'

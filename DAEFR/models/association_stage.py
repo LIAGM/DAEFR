@@ -3,24 +3,17 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from main import instantiate_from_config
+from main_DAEFR import instantiate_from_config
 import numpy as np
 
 from DAEFR.modules.vqvae.utils import get_roi_regions
 
-def disabled_train(self, mode=True):
-    """Overwrite model.train with this function to make sure train/eval mode
-    does not change anymore."""
-    return self
+
 
 class DAEFRModel(pl.LightningModule):
     def __init__(self,
                  ddconfig,
                  lossconfig,
-                 transformer_config=None,
-                 cond_stage_config=None,
-                 permuter_config=None,
-                 ckpt_path=None,
                  ckpt_path_HQ=None,
                  ckpt_path_LQ=None,
                  encoder_codebook_type=None,
@@ -40,14 +33,7 @@ class DAEFRModel(pl.LightningModule):
         self.image_key = image_key
         self.vqvae = instantiate_from_config(ddconfig)
         self.vqvae_LQ = instantiate_from_config(ddconfig)
-        # code transformer
-        if transformer_config is not None:
-            self.transformer = instantiate_from_config(config=transformer_config)
-        if cond_stage_config is not None:
-            self.init_cond_stage_from_ckpt(cond_stage_config)
-        if permuter_config is None:
-            permuter_config = {"target": "DAEFR.modules.transformer.permuter.Identity"}
-        self.permuter = instantiate_from_config(config=permuter_config)
+
 
         lossconfig['params']['distill_param'] = ddconfig['params']
         self.loss = instantiate_from_config(lossconfig)
@@ -59,8 +45,6 @@ class DAEFRModel(pl.LightningModule):
         if (ckpt_path_HQ is not None) and (ckpt_path_LQ is not None):
             self.init_from_ckpt_two(
                 ckpt_path_HQ, ckpt_path_LQ, ignore_keys=ignore_keys)
-        elif ckpt_path is not None:
-            self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
 
         if ('comp_weight' in lossconfig['params'] and lossconfig['params']['comp_weight']) or ('comp_style_weight' in lossconfig['params'] and lossconfig['params']['comp_style_weight']):
             self.use_facial_disc = True
@@ -76,52 +60,13 @@ class DAEFRModel(pl.LightningModule):
 
         self.encoder_codebook_type = encoder_codebook_type
 
-    def init_from_ckpt(self, path, ignore_keys=list()):
-        sd = torch.load(path, map_location="cpu")["state_dict"]
-        keys = list(sd.keys())
 
-        # import pdb
-        # pdb.set_trace()
-
-        for k in keys:
-            for ik in ignore_keys:
-                if k.startswith(ik):
-                    print("Deleting key {} from state_dict.".format(k))
-                    del sd[k]
-
-        state_dict = self.state_dict()
-        require_keys = state_dict.keys()
-        keys = sd.keys()
-        un_pretrained_keys = []
-        for k in require_keys:
-            if k not in keys:
-                # miss 'vqvae.'
-                if k[6:] in keys:
-                    state_dict[k] = sd[k[6:]]
-                else:
-                    un_pretrained_keys.append(k)
-            else:
-                state_dict[k] = sd[k]
-
-        # print(f'*************************************************')
-        # print(f"Layers without pretraining: {un_pretrained_keys}")
-        # print(f'*************************************************')
-
-        self.load_state_dict(state_dict, strict=True)
-        print(f"Restored from {path}")
 
     def init_from_ckpt_two(self, path_HQ, path_LQ, ignore_keys=list()):
 
-        # For only code transformer
-        # HQ_ignore_keys = ['vqvae.encoder',
-        #                   'vqvae.quant_conv.weight',
-        #                   'vqvae.quant_conv.bias']
+        print('In two checkpoints load function-----------')
+
         HQ_ignore_keys = []
-        # LQ_ignore_keys = ['vqvae.decoder',
-        #                   'loss',
-        #                   'vqvae.quantize.embedding.weight',
-        #                   'vqvae.post_quant_conv.weight',
-        #                   'vqvae.post_quant_conv.bias']
         LQ_ignore_keys = []
 
         # From checkpoint all: 460
@@ -159,33 +104,7 @@ class DAEFRModel(pl.LightningModule):
         print('HQ keys number =',len(HQ_keys))
         print('LQ keys number =',len(LQ_keys))
 
-        # import pdb
-        # pdb.set_trace()
 
-        # delete and replace keys in HQ Keys
-        # for k in HQ_keys:
-        #     for ik in HQ_ignore_keys:
-        #         if k.startswith(ik):
-        #             HQ_count[ik] = HQ_count[ik] + 1
-        #             HQ_count[ik.replace('vqvae.', 'vqvae.HQ_')] = HQ_count[ik.replace('vqvae.', 'vqvae.HQ_')] + 1
-        #             # print("Deleting key {} from state_dict.".format(k))
-        #             sd_HQ[k.replace('vqvae.', 'vqvae.HQ_')] = sd_HQ[k]
-        #             del sd_HQ[k]
-       
-        
-        # delete and replace keys in LQ Keys
-        # for k in LQ_keys:
-        #     for ik in LQ_ignore_keys:
-        #         if (k == 'vqvae.quantize.embedding.weight') and k.startswith(ik):
-        #             LQ_count['vqvae.quantize.embedding.weight'] = LQ_count['vqvae.quantize.embedding.weight'] + 1
-        #             LQ_count['vqvae.LQ_quantize.embedding.weight'] = LQ_count['vqvae.LQ_quantize.embedding.weight'] + 1
-        #             sd_LQ[k.replace('vqvae.', 'vqvae.LQ_')] = sd_LQ[k]
-        #             del sd_LQ[k]
-        #         elif k.startswith(ik):
-        #             LQ_count[ik] = LQ_count[ik] + 1
-        #             # print("Deleting key {} from state_dict.".format(k))
-        #             del sd_LQ[k]
-        
         # replace the keys in LQ checkpoint
         for k in LQ_keys:
             if k.startswith('vqvae'):
@@ -198,8 +117,6 @@ class DAEFRModel(pl.LightningModule):
 
         # HQ keys = 460
         # LQ keys = 460
-        # import pdb
-        # pdb.set_trace()
 
         state_dict = self.state_dict()
         require_keys = state_dict.keys()
@@ -240,25 +157,10 @@ class DAEFRModel(pl.LightningModule):
         print(f"Number of HQ weight loaded = {HQ_count}")
         print(f"Number of LQ weight loaded = {LQ_count}")
         print(f"Restored from {path_HQ} and {path_LQ}")
-
-    def init_cond_stage_from_ckpt(self, config):
-        model = instantiate_from_config(config)
-        model = model.eval()
-        model.train = disabled_train
-        self.cond_stage_model = model
-    
-    
     
     def forward(self, input, gt=None):
         # dec, diff, info, hs = self.vqvae(input)
         # return dec, diff, info, hs
-        # input = LQ image
-        # gt = HQ image
-        # import pdb
-        # pdb.set_trace()
-        # quant_z, z_indices, z_info, z_hs, z_h, z_dictionary = self.encode_to_z(input, self.encoder_codebook_type)
-        # if gt is not None:
-        #     quant_gt, gt_indices, gt_info, gt_hs, gt_h, gt_dictionary = self.encode_to_gt(gt)
 
         # HQ part 
         HQ_hs = self.vqvae.encoder(gt)
@@ -299,43 +201,13 @@ class DAEFRModel(pl.LightningModule):
 
         HQ_dec = self.vqvae.decode(HQ_quant)
         LQ_dec = self.vqvae_LQ.decode(LQ_quant)
-        # cz_indices = torch.cat((z_indices, z_indices), dim=1)
-        # logits, loss = self.transformer(z_indices, targets=gt_indices)
-        # logits = logits[:, gt_indices.shape[1]-1:]
-        # temperature = 1.0
-        # logits = logits / temperature
-        # probs = F.softmax(logits, dim=-1)
-        # _, index = torch.topk(probs, k=1, dim=-1)
-        # bhwc = (quant_z.shape[0],quant_z.shape[2],quant_z.shape[3],quant_z.shape[1])
-        # quant_feat = self.vqvae.quantize.get_codebook_entry(
-        #     index.reshape(-1), shape=bhwc)
-        # quant_feat = quant_z + (quant_feat - quant_z).detach()
-        # dec = self.vqvae.decode(quant_feat)
 
-        # dec, diff, info, hs, h, quant, dictionary = self.vqvae(input)
-        # return dec, diff, info, hs, h, quant, dictionary
-        # return dec, loss, z_info, z_hs, z_h, quant_z, z_dictionary
         return HQ_dec, LQ_dec, CLIP_loss, HQ_emb_loss, LQ_emb_loss, HQ_quant, LQ_quant
 
     @torch.no_grad()
-    def encode_to_z(self, x, encoder_codebook_type):
-        # import pdb
-        # pdb.set_trace()
-        if (encoder_codebook_type is not None) and (encoder_codebook_type == 'LQHQ'):
-            quant_z, _, info, hs, h, dictionary = self.vqvae.encode(x)
-        if (encoder_codebook_type is not None) and (encoder_codebook_type == 'LQLQ'):
-            quant_z, _, info, hs, h, dictionary = self.vqvae.LQ_encode(x)    
-        indices = info[2].view(quant_z.shape[0], -1)
-        indices = self.permuter(indices)
-        return quant_z, indices, info, hs, h, dictionary
-
-    @torch.no_grad()
     def encode_to_gt(self, gt):
-        # import pdb
-        # pdb.set_trace()
         quant_gt, _, info, hs, h, dictionary = self.vqvae.HQ_encode(gt)
         indices = info[2].view(quant_gt.shape[0], -1)
-        indices = self.permuter(indices)
         return quant_gt, indices, info, hs, h, dictionary
 
     def training_step(self, batch, batch_idx, optimizer_idx):
@@ -423,50 +295,12 @@ class DAEFRModel(pl.LightningModule):
                      logger=True, on_step=True, on_epoch=True)
             self.log_dict(LQ_log_dict_disc, prog_bar=False,
                           logger=True, on_step=True, on_epoch=True)
-            return LQ_discloss    
-
-
-
-        # if self.disc_start <= self.global_step:
-
-        #     # left eye
-        #     if optimizer_idx == 2:
-        #         # discriminator
-        #         disc_left_loss, log_dict_disc = self.loss(qloss, x, xrec, components, optimizer_idx, self.global_step,
-        #                                                   last_layer=None, split="train")
-        #         self.log("train/disc_left_loss", disc_left_loss,
-        #                  prog_bar=True, logger=True, on_step=True, on_epoch=True)
-        #         self.log_dict(log_dict_disc, prog_bar=False,
-        #                       logger=True, on_step=True, on_epoch=True)
-        #         return disc_left_loss
-
-        #     # right eye
-        #     if optimizer_idx == 3:
-        #         # discriminator
-        #         disc_right_loss, log_dict_disc = self.loss(qloss, x, xrec, components, optimizer_idx, self.global_step,
-        #                                                    last_layer=None, split="train")
-        #         self.log("train/disc_right_loss", disc_right_loss,
-        #                  prog_bar=True, logger=True, on_step=True, on_epoch=True)
-        #         self.log_dict(log_dict_disc, prog_bar=False,
-        #                       logger=True, on_step=True, on_epoch=True)
-        #         return disc_right_loss
-
-        #     # mouth
-        #     if optimizer_idx == 4:
-        #         # discriminator
-        #         disc_mouth_loss, log_dict_disc = self.loss(qloss, x, xrec, components, optimizer_idx, self.global_step,
-        #                                                    last_layer=None, split="train")
-        #         self.log("train/disc_mouth_loss", disc_mouth_loss,
-        #                  prog_bar=True, logger=True, on_step=True, on_epoch=True)
-        #         self.log_dict(log_dict_disc, prog_bar=False,
-        #                       logger=True, on_step=True, on_epoch=True)
-        #         return disc_mouth_loss
+            return LQ_discloss
 
     def validation_step(self, batch, batch_idx):
         x = batch[self.image_key]
         gt = batch['gt']
-        # HQ_dec, LQ_dec, CLIP_loss, HQ_emb_loss, LQ_emb_loss, HQ_quant, LQ_quant
-        # xrec, qloss, info, hs,_,_,_ = self(x, gt)
+
         HQ_xrec, LQ_xrec, CLIP_loss, HQ_qloss, LQ_qloss,_,_ = self(x, gt)
 
         # if self.image_key != 'gt':
@@ -572,22 +406,7 @@ class DAEFRModel(pl.LightningModule):
         
         schedules = [s0, s1, s2, s3]
 
-        # if self.use_facial_disc:
-        #     opt_l = torch.optim.Adam(self.loss.net_d_left_eye.parameters(),
-        #                              lr=lr*self.comp_params_lr_scale, betas=(0.9, 0.99))
-        #     opt_r = torch.optim.Adam(self.loss.net_d_right_eye.parameters(),
-        #                              lr=lr*self.comp_params_lr_scale, betas=(0.9, 0.99))
-        #     opt_m = torch.optim.Adam(self.loss.net_d_mouth.parameters(),
-        #                              lr=lr*self.comp_params_lr_scale, betas=(0.9, 0.99))
-        #     optimizations += [opt_l, opt_r, opt_m]
 
-        #     s2 = torch.optim.lr_scheduler.MultiStepLR(
-        #         opt_l, milestones=self.schedule_step, gamma=0.1, verbose=True)
-        #     s3 = torch.optim.lr_scheduler.MultiStepLR(
-        #         opt_r, milestones=self.schedule_step, gamma=0.1, verbose=True)
-        #     s4 = torch.optim.lr_scheduler.MultiStepLR(
-        #         opt_m, milestones=self.schedule_step, gamma=0.1, verbose=True)
-        #     schedules += [s2, s3, s4]
 
         return optimizations, schedules
 
