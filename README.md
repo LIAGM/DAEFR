@@ -31,11 +31,28 @@ We propose a novel dual-branch framework named **DAEFR**. Our method introduces 
 **Dataset**: 
 - Training data: **HQ Codebook**, **LQ Codebook** and **DAEFR** are trained with **FFHQ** which attained from [FFHQ repository](https://github.com/NVlabs/ffhq-dataset). The original size of the images in FFHQ are 1024x1024. We resize them to 512x512 with bilinear interpolation in our work. Link this dataset to ./data/FFHQ/image512x512.
 - <a id="testset">Test data</a>:
-   * CelebA-Test-HQ: [OneDrive](https://connecthkuhk-my.sharepoint.com/:u:/g/personal/wzhoux_connect_hku_hk/EY7P-MReZUZOngy3UGa5abUBJKel1IH5uYZLdwp2e2KvUw?e=rK0VWh);
-   * CelebA-Test-LQ: [OneDrive](https://connecthkuhk-my.sharepoint.com/:u:/g/personal/wzhoux_connect_hku_hk/EXULDOtX3qdKg9_--k-hbr4BumxOUAi19iQjZNz75S6pKA?e=Kghqri);
-   * LFW-Test: [OneDrive](https://connecthkuhk-my.sharepoint.com/:u:/g/personal/wzhoux_connect_hku_hk/EZ7ibkhUuRxBjdd-MesczpgBfpLVfv-9uYVskLuZiYpBsg?e=xPNH26);
+   * CelebA-Test-HQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip);
+   * CelebA-Test-LQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/self_celeba_512_v2.zip);
+   * LFW-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip);
+   * WIDER-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/Wider-Test.zip);
 
-**Model**: Both pretrained models used for training and the trained model of our RestoreFormer can be attained from [OneDrive](https://connecthkuhk-my.sharepoint.com/:u:/g/personal/wzhoux_connect_hku_hk/Eb73S2jXZIxNrrOFRnFKu2MBTe7kl4cMYYwwiudAmDNwYg?e=Xa4ZDf). Link these models to ./experiments.
+**Model**: Pretrained models used for training and the trained model of our DAEFR can be attained from [HuggingFace](https://huggingface.co/LIAGM/DAEFR_pretrain_model/tree/main). Link these models to ./experiments.
+
+Make sure the models are stored as follows:
+```
+experiments/
+|-- pretrained_models/
+    |-- FFHQ_eye_mouth_landmarks_512.pth
+    |-- arcface_resnet18.pth    
+    |-- inception_FFHQ_512-f7b384ab.pth
+    |-- lpips/
+        |-- vgg.pth
+|-- HQ_codebook.ckpt
+|-- LQ_codebook.ckpt
+|-- Association_stage.ckpt
+|-- DAEFR_model.ckpt
+
+```
 
 ## Test
     sh scripts/test.sh
