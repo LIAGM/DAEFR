@@ -12,9 +12,9 @@ if [ ! -d $out_root ];then
 fi
 
 
-dataset_name_array=('self_celeba_v2' 'lfw' 'lfw_crop' 'wider' 'BRIAR')
+dataset_name_array=('self_celeba_v2' 'lfw_crop' 'wider')
 
-dataset_location_array=('self_celeba_512_v2' 'lfw' 'lfw_cropped_faces' 'Wider-Test' 'mix_briar_128')
+dataset_location_array=('self_celeba_512_v2' 'lfw_cropped_faces' 'Wider-Test')
 
 checkpoint='/ssd1/yuju/DAEFR/experiments/DAEFR_model/DAEFR_model.ckpt'
 config='/ssd1/yuju/DAEFR/configs/DAEFR.yaml'

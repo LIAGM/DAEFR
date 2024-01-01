@@ -41,16 +41,16 @@ We propose a novel dual-branch framework named **DAEFR**. Our method introduces 
 Make sure the models are stored as follows:
 ```
 experiments/
+|-- HQ_codebook.ckpt
+|-- LQ_codebook.ckpt
+|-- Association_stage.ckpt
+|-- DAEFR_model.ckpt
 |-- pretrained_models/
     |-- FFHQ_eye_mouth_landmarks_512.pth
     |-- arcface_resnet18.pth    
     |-- inception_FFHQ_512-f7b384ab.pth
     |-- lpips/
         |-- vgg.pth
-|-- HQ_codebook.ckpt
-|-- LQ_codebook.ckpt
-|-- Association_stage.ckpt
-|-- DAEFR_model.ckpt
 
 ```
 
