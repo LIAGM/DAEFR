@@ -4,8 +4,10 @@ model:
   target: DAEFR.models.daefr.DAEFRModel
   params:
     image_key: 'lq'
-    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook/HQ_codebook.ckpt'
-    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/Association_stage/Association_stage.ckpt'
+    # HQ codebook path
+    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook.ckpt'
+    # Association model path
+    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/Association_stage.ckpt'
     special_params_lr_scale: 1
     comp_params_lr_scale: 10
     schedule_step: [4000000, 8000000]

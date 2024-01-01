@@ -5,9 +5,9 @@ model:
   params:
     image_key: 'lq'
     # HQ codebook path
-    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook/HQ_codebook.ckpt'
+    ckpt_path_HQ: '/ssd1/yuju/DAEFR/experiments/HQ_codebook.ckpt'
     # LQ codebook path
-    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/LQ_codebook/LQ_codebook.ckpt'
+    ckpt_path_LQ: '/ssd1/yuju/DAEFR/experiments/LQ_codebook.ckpt'
     schedule_step: [4000000, 8000000]
     ddconfig:
       target: DAEFR.modules.vqvae.vqvae_arch.VQVAEGAN
