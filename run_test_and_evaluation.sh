@@ -16,12 +16,6 @@ dataset_name_array=('self_celeba_v2' 'lfw' 'lfw_crop' 'wider' 'BRIAR')
 
 dataset_location_array=('self_celeba_512_v2' 'lfw' 'lfw_cropped_faces' 'Wider-Test' 'mix_briar_128')
 
-
-# checkpoint=${1}
-# config=${2}
-# output_name=${3}
-# GPU=${4}
-
 checkpoint='/ssd1/yuju/DAEFR/experiments/DAEFR_model/DAEFR_model.ckpt'
 config='/ssd1/yuju/DAEFR/configs/DAEFR.yaml'
 output_name='DAEFR'
@@ -35,16 +29,10 @@ echo $GPU
 
 for i in $(seq 0 4)
 do 
-    
-# echo ${dataset_name_array[${i}]}
-# echo ${dataset_location_array[${i}]}
 
 outdir=$root'/'$output_name'_'${dataset_name_array[${i}]}
 align_test_path='/ssd2/yuju/RestoreFormer/data/'${dataset_location_array[${i}]}
 
-
-# echo ${outdir}
-# echo ${align_test_path}
 
 if [ ! -d $outdir ];then
     mkdir $outdir

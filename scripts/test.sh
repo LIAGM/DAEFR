@@ -1,5 +1,4 @@
-# # ### Good
-exp_name='RestoreFormer'
+exp_name='DAEFR'
 
 root_path='experiments'
 out_root_path='results'
@@ -15,7 +14,7 @@ fi
 python -u scripts/test.py \
 --outdir $outdir \
 -r $root_path'/'$exp_name'/last.ckpt' \
--c 'configs/RestoreFormer.yaml' \
+-c 'configs/DAEFR.yaml' \
 --test_path $align_test_path \
 --aligned
 

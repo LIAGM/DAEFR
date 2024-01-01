@@ -56,13 +56,28 @@ experiments/
 
 ## Test
     sh scripts/test.sh
+Or you can use the following command for testing:
+```
+CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
+--outdir $outdir \
+-r $checkpoint \
+-c $config \
+--test_path $align_test_path \
+--aligned
+```
 
 ## Training
-    sh scripts/run.sh
+### First stage for codebooks
+    sh scripts/run_HQ_codebook_training.sh
+    sh scripts/run_LQ_codebook_training.sh
+### Second stage for Association
+    sh scripts/run_association_stage_training.sh
+### Final stage for DAEFR
+    sh scripts/run_DAEFR_training.sh
 
 **Note**. 
-- The first stage is to attain **HQ Dictionary** by setting `conf_name` in scripts/run.sh to 'HQ\_Dictionary'. 
-- The second stage is blind face restoration. You need to add your trained HQ\_Dictionary model to `ckpt_path` in config/RestoreFormer.yaml and set `conf_name` in scripts/run.sh to 'RestoreFormer'.
+- The second stage is for model association. You need to add your trained HQ\_Codebook and LQ\_Codebook model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/Association_stage.yaml.
+- The final stage is for face restoration. You need to add your trained HQ\_Codebook and Association model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/DAEFR.yaml.
 - Our model is trained with 8 A100 GPUs.
 
 ## <a id="metrics">Metrics</a>
