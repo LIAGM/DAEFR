@@ -24,6 +24,12 @@ We propose a novel dual-branch framework named **DAEFR**. Our method introduces 
 - omegaconf==2.0.0
 - basicsr==1.3.3.4
 
+You can also set up the environment by the following command:
+```
+conda env create -f environment.yml
+conda activate DAEFR
+```
+
 **Warning** Different versions of pytorch-lightning and omegaconf may lead to errors or different results.
 
 ## Preparations of dataset and models
