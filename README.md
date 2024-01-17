@@ -42,6 +42,39 @@ conda activate DAEFR
    * LFW-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip);
    * WIDER-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/Wider-Test.zip);
 
+<table>
+<tr>
+    <th>Datasets</th>
+    <th>Short Description</th>
+    <th>Download</th>
+    <th>DAEFR results</th>
+</tr>
+<tr>
+    <td>CelebA-Test (HQ)</td>
+    <td>3000 (HQ) ground truth images for evaluation</td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip">celeba_512_validation.zip</a></td>
+    <td>None</td>
+</tr>
+<tr>
+    <td>CelebA-Test (LQ)</td>
+    <td>3000 (LQ) synthetic images for testing</td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/self_celeba_512_v2.zip">self_celeba_512_v2.zip</a></td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_results/blob/main/DAEFR_celeba.zip">Link</a></td>
+</tr>  
+<tr>
+    <td>LFW-Test (LQ)</td>
+    <td>1711 real-world images for testing</td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip">self_celeba_512_v2.zip</a></td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_results/blob/main/DAEFR_lfw.zip">Link</a></td>
+</tr>
+<tr>
+    <td>WIDER-Test (LQ)</td>
+    <td>970 real-world images for testing</td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/Wider-Test.zip">self_celeba_512_v2.zip</a></td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_results/blob/main/DAEFR_wider.zip">Link</a></td>
+</tr>
+</table>
+
 **Model**: Pretrained models used for training and the trained model of our DAEFR can be attained from [HuggingFace](https://huggingface.co/LIAGM/DAEFR_pretrain_model/tree/main). Link these models to ./experiments.
 
 Make sure the models are stored as follows:
