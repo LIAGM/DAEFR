@@ -35,13 +35,14 @@ conda activate DAEFR
 ## Preparations of dataset and models
 
 **Dataset**: 
-- Training data: **HQ Codebook**, **LQ Codebook** and **DAEFR** are trained with **FFHQ** which attained from [FFHQ repository](https://github.com/NVlabs/ffhq-dataset). The original size of the images in FFHQ are 1024x1024. We resize them to 512x512 with bilinear interpolation in our work. Link this dataset to ./data/FFHQ/image512x512.
+- Training data: **HQ Codebook**, **LQ Codebook** and **DAEFR** are trained with **FFHQ** which attained from [FFHQ repository](https://github.com/NVlabs/ffhq-dataset). 
+- The original size of the images in FFHQ are 1024x1024. We resize them to 512x512 with bilinear interpolation in our work. 
+- We provide our resized 512x512 FFHQ on [HuggingFace](https://huggingface.co/datasets/LIAGM/FFHQ_datasets/tree/main). Link this 512x512 version dataset to ./data/FFHQ/image512x512.
 - <a id="testset">Test data</a>:
-   * CelebA-Test-HQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip);
+   <!-- * CelebA-Test-HQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip);
    * CelebA-Test-LQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/self_celeba_512_v2.zip);
    * LFW-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip);
-   * WIDER-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/Wider-Test.zip);
-
+   * WIDER-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/Wider-Test.zip); -->
 <table>
 <tr>
     <th>Datasets</th>
@@ -64,13 +65,13 @@ conda activate DAEFR
 <tr>
     <td>LFW-Test (LQ)</td>
     <td>1711 real-world images for testing</td>
-    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip">self_celeba_512_v2.zip</a></td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip">lfw_cropped_faces.zip</a></td>
     <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_results/blob/main/DAEFR_lfw.zip">Link</a></td>
 </tr>
 <tr>
     <td>WIDER-Test (LQ)</td>
     <td>970 real-world images for testing</td>
-    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/Wider-Test.zip">self_celeba_512_v2.zip</a></td>
+    <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/Wider-Test.zip">Wider-Test.zip</a></td>
     <td><a href="https://huggingface.co/datasets/LIAGM/DAEFR_results/blob/main/DAEFR_wider.zip">Link</a></td>
 </tr>
 </table>
@@ -135,7 +136,7 @@ CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
     }
 
 ## Acknowledgement
-We thank everyone who makes their code and models available, especially [Taming Transformer](https://github.com/CompVis/taming-transformers), [basicsr](https://github.com/XPixelGroup/BasicSR), and [RestoreFormer](https://github.com/wzhouxiff/RestoreFormer).
+We thank everyone who makes their code and models available, especially [Taming Transformer](https://github.com/CompVis/taming-transformers), [basicsr](https://github.com/XPixelGroup/BasicSR), [RestoreFormer](https://github.com/wzhouxiff/RestoreFormer), [CodeFormer](https://github.com/sczhou/CodeFormer), and [VQFR](https://github.com/TencentARC/VQFR).
 
 ## Contact
 For any question, feel free to email `louis19950117@gmail.com`.
