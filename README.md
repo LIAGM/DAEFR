@@ -1,10 +1,10 @@
-# Updating
+# News  ✨ ✨ 
 <!-- - **20230915** Update an online demo [![Huggingface Gradio](https://img.shields.io/static/v1?label=Demo&message=Huggingface%20Gradio&color=orange)](https://huggingface.co/spaces/wzhouxiff/RestoreFormerPlusPlus)
 - **20230116** For convenience, we further upload the [test datasets](#testset), including CelebA (both HQ and LQ data), LFW-Test, CelebChild-Test, and Webphoto-Test, to OneDrive and BaiduYun.
 - **20221003** We provide the link of the [test datasets](#testset).
 - **20220924** We add the code for [**metrics**](#metrics) in scripts/metrics. -->
-- **[20240116]** Our paper is accepted by **ICLR 2024**.
-- **[20231226]** Create project.
+- **[2024-01-16]** Our paper is accepted by **ICLR 2024**.
+- **[2023-12-26]** Create project.
 
 
 # DAEFR
