@@ -3,7 +3,8 @@
 - **20230116** For convenience, we further upload the [test datasets](#testset), including CelebA (both HQ and LQ data), LFW-Test, CelebChild-Test, and Webphoto-Test, to OneDrive and BaiduYun.
 - **20221003** We provide the link of the [test datasets](#testset).
 - **20220924** We add the code for [**metrics**](#metrics) in scripts/metrics. -->
-- **20231226** Create project.
+- **[20240116]** Our paper is accepted by **ICLR 2024**.
+- **[20231226]** Create project.
 
 
 # DAEFR
@@ -34,11 +35,11 @@ conda activate DAEFR
 
 ## Preparations of dataset and models
 
-**Dataset**: 
+**Training Dataset**: 
 - Training data: **HQ Codebook**, **LQ Codebook** and **DAEFR** are trained with **FFHQ** which attained from [FFHQ repository](https://github.com/NVlabs/ffhq-dataset). 
 - The original size of the images in FFHQ are 1024x1024. We resize them to 512x512 with bilinear interpolation in our work. 
 - We provide our resized 512x512 FFHQ on [HuggingFace](https://huggingface.co/datasets/LIAGM/FFHQ_datasets/tree/main). Link this 512x512 version dataset to ./data/FFHQ/image512x512.
-- <a id="testset">Test data</a>:
+**Testing Dataset**: 
    <!-- * CelebA-Test-HQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip);
    * CelebA-Test-LQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/self_celeba_512_v2.zip);
    * LFW-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip);
