@@ -90,7 +90,8 @@ CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
     sh scripts/metrics/run.sh
     
 **Note**. 
-- You need to add the path of CelebA-Test dataset in the script if you want get IDD, PSRN, SSIM, LIPIS.
+- You need to add the path of CelebA-Test dataset in the script if you want get IDA, PSNR, SSIM, LPIPS. You also need to modify the name of restored folders for evaluation.
+- For LMD and NIQE, we use the evaluation code from [VQFR](https://github.com/TencentARC/VQFR). Please refer to their repo for more details.
 
 ## Citation
     @article{tsai2023dual,
