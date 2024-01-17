@@ -9,7 +9,7 @@
 
 # DAEFR
 
-This repo includes the source code of the paper: "[Dual Associated Encoder for Face Restoration](https://arxiv.org/abs/2308.07314)" by Yu-Ju Tsai, Yu-Lun Liu, Lu Qi, Kelvin C.K. Chan, and Ming-Hsuan Yang.
+This repo includes the source code of the paper: "[Dual Associated Encoder for Face Restoration](https://arxiv.org/abs/2308.07314)" by [Yu-Ju Tsai](https://liagm.github.io/), [Yu-Lun Liu](https://yulunalexliu.github.io/), [Lu Qi](https://luqi.info/), [Kelvin C.K. Chan](https://ckkelvinchan.github.io/), and [Ming-Hsuan Yang](https://faculty.ucmerced.edu/mhyang/).
 
 ![](assets/DAEFR_results.png)
 
@@ -39,6 +39,7 @@ conda activate DAEFR
 - Training data: **HQ Codebook**, **LQ Codebook** and **DAEFR** are trained with **FFHQ** which attained from [FFHQ repository](https://github.com/NVlabs/ffhq-dataset). 
 - The original size of the images in FFHQ are 1024x1024. We resize them to 512x512 with bilinear interpolation in our work. 
 - We provide our resized 512x512 FFHQ on [HuggingFace](https://huggingface.co/datasets/LIAGM/FFHQ_datasets/tree/main). Link this 512x512 version dataset to ./data/FFHQ/image512x512.
+
 **Testing Dataset**: 
    <!-- * CelebA-Test-HQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip);
    * CelebA-Test-LQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/self_celeba_512_v2.zip);
