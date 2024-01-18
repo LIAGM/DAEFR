@@ -27,11 +27,11 @@ echo ${config}
 echo ${output_name}
 echo $GPU
 
-for i in $(seq 0 4)
+for i in $(seq 0 2)
 do 
 
 outdir=$root'/'$output_name'_'${dataset_name_array[${i}]}
-align_test_path='/ssd2/yuju/RestoreFormer/data/'${dataset_location_array[${i}]}
+align_test_path='/ssd1/yuju/DAEFR/data/'${dataset_location_array[${i}]}
 
 
 if [ ! -d $outdir ];then
@@ -49,7 +49,7 @@ done
 
 
 # Calculate the FID for real-world datasets
-for i in $(seq 1 4)
+for i in $(seq 1 2)
 do
 outdir=$output_name'_'${dataset_name_array[${i}]}
 # echo $outdir
@@ -66,7 +66,7 @@ $root'/'$test_image \
 
 done
 
-# Calculate the FID for Celeba-Test datasets
+# Calculate the FID for Celeba-Test datasets ----------------------------------
 
 # For method results
 outdir=$output_name'_'${dataset_name_array[0]}
@@ -86,7 +86,7 @@ need_post=1
 out_name=$outdir
 # echo $outdir $out_name
 
-CelebAHQ_GT='/ssd2/yuju/RestoreFormer/data/celeba_512_validation'
+CelebAHQ_GT='/ssd1/yuju/DAEFR/data/celeba_512_validation'
 
 # FID
 CUDA_VISIBLE_DEVICES=$GPU python -u scripts/metrics/cal_fid.py \
