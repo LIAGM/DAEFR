@@ -13,7 +13,7 @@ fi
 
 python -u scripts/test.py \
 --outdir $outdir \
--r $root_path'/'$exp_name'/last.ckpt' \
+-r './experiments/DAEFR_model.ckpt' \
 -c 'configs/DAEFR.yaml' \
 --test_path $align_test_path \
 --aligned

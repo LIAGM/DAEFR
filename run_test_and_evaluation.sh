@@ -16,8 +16,8 @@ dataset_name_array=('self_celeba_v2' 'lfw_crop' 'wider')
 
 dataset_location_array=('self_celeba_512_v2' 'lfw_cropped_faces' 'Wider-Test')
 
-checkpoint='/ssd1/yuju/DAEFR/experiments/DAEFR_model/DAEFR_model.ckpt'
-config='/ssd1/yuju/DAEFR/configs/DAEFR.yaml'
+checkpoint='./experiments/DAEFR_model.ckpt'
+config='./configs/DAEFR.yaml'
 output_name='DAEFR'
 GPU='4'
 
@@ -31,7 +31,7 @@ for i in $(seq 0 2)
 do 
 
 outdir=$root'/'$output_name'_'${dataset_name_array[${i}]}
-align_test_path='/ssd1/yuju/DAEFR/data/'${dataset_location_array[${i}]}
+align_test_path='./data/'${dataset_location_array[${i}]}
 
 
 if [ ! -d $outdir ];then
@@ -86,7 +86,7 @@ need_post=1
 out_name=$outdir
 # echo $outdir $out_name
 
-CelebAHQ_GT='/ssd1/yuju/DAEFR/data/celeba_512_validation'
+CelebAHQ_GT='./data/celeba_512_validation'
 
 # FID
 CUDA_VISIBLE_DEVICES=$GPU python -u scripts/metrics/cal_fid.py \
