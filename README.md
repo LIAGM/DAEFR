@@ -118,9 +118,10 @@ CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
     sh scripts/run_DAEFR_training.sh
 
 **Note**. 
+- Please modify the related paths to your own.
 - The second stage is for model association. You need to add your trained HQ\_Codebook and LQ\_Codebook model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/Association_stage.yaml.
 - The final stage is for face restoration. You need to add your trained HQ\_Codebook and Association model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/DAEFR.yaml.
-- Our model is trained with 8 A100 GPUs.
+- Our model is trained with 8 A100 40GB GPUs with batchsize 4. The batch size is 3 for one RTX 3090 24GB.
 
 ## <a id="metrics">Metrics</a>
     sh scripts/metrics/run.sh
