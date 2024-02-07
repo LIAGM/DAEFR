@@ -40,7 +40,7 @@ def restoration(model,
     else:
         face_helper.read_image(input_img)
         # get face landmarks for each face
-        face_helper.get_face_landmarks_5(only_center_face=only_center_face, pad_blur=False)
+        face_helper.get_face_landmarks_5(only_center_face=only_center_face)
         # align and warp each face
         save_crop_path = os.path.join(save_root, 'cropped_faces', img_name)
         face_helper.align_warp_face(save_crop_path)
