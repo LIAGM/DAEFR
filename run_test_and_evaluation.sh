@@ -31,7 +31,7 @@ for i in $(seq 0 2)
 do 
 
 outdir=$root'/'$output_name'_'${dataset_name_array[${i}]}
-align_test_path='./data/'${dataset_location_array[${i}]}
+align_test_path='./datasets/'${dataset_location_array[${i}]}
 
 
 if [ ! -d $outdir ];then
@@ -86,7 +86,7 @@ need_post=1
 out_name=$outdir
 # echo $outdir $out_name
 
-CelebAHQ_GT='./data/celeba_512_validation'
+CelebAHQ_GT='./datasets/celeba_512_validation'
 
 # FID
 CUDA_VISIBLE_DEVICES=$GPU python -u scripts/metrics/cal_fid.py \

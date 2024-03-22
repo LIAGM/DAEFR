@@ -2,7 +2,7 @@ exp_name='DAEFR'
 
 root_path='experiments'
 out_root_path='results'
-align_test_path='data/test'
+align_test_path='datasets/test'
 tag='test'
 
 outdir=$out_root_path'/'$exp_name'_'$tag
