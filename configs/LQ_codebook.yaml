@@ -43,7 +43,7 @@ data:
     train:
       target: DAEFR.data.ffhq_degradation_dataset_LQ.FFHQDegradationDataset
       params:
-        dataroot_gt: ./data/FFHQ/images512x512
+        dataroot_gt: ./datasets/FFHQ/images512x512
         io_backend:
           type: disk
         use_hflip: True
@@ -73,7 +73,7 @@ data:
     validation:
       target: DAEFR.data.ffhq_degradation_dataset_LQ.FFHQDegradationDataset
       params:
-        dataroot_gt: ./data/FFHQ/images512x512_validation
+        dataroot_gt: ./datasets/FFHQ/images512x512_validation
         io_backend:
           type: disk
         use_hflip: False
