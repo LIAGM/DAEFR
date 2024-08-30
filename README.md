@@ -131,11 +131,11 @@ CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
 - For LMD and NIQE, we use the evaluation code from [VQFR](https://github.com/TencentARC/VQFR). Please refer to their repo for more details.
 
 ## Citation
-    @article{tsai2023dual,
+    @inproceedings{tsai2024dual,
         title={Dual Associated Encoder for Face Restoration},
         author={Tsai, Yu-Ju and Liu, Yu-Lun and Qi, Lu and Chan, Kelvin CK and Yang, Ming-Hsuan},
-        journal={arXiv preprint arXiv:2308.07314},
-        year={2023}
+        booktitle={The Twelfth International Conference on Learning Representations},
+        year={2024}
     }
 
 ## Acknowledgement
