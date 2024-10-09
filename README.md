@@ -20,7 +20,7 @@ We propose a novel dual-branch framework named **DAEFR**. Our method introduces 
 ## Environment
 
 - python>=3.8
-- pytorch>=1.10.1
+- pytorch>=1.10.0
 - pytorch-lightning==1.0.8
 - omegaconf==2.0.0
 - basicsr==1.3.3.4
@@ -29,20 +29,26 @@ You can also set up the environment by the following command:
 ```shell
 conda create -n DAEFR python=3.8 -y
 conda activate DAEFR
-conda install pytorch==1.12.0 torchvision==0.13.0 cudatoolkit=11.3 -c pytorch -y
+pip install torch==1.10.1+cu113 torchvision==0.11.2+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
 pip install -r requirements.txt
 ```
 
-**Warning** Different versions of pytorch-lightning and omegaconf may lead to errors or different results.
+**Warning:** Different versions of pytorch-lightning and omegaconf may lead to errors or different results.
 
 ## Preparations of dataset and models
 
 **Training Dataset**: 
 - Training data: **HQ Codebook**, **LQ Codebook** and **DAEFR** are trained with **FFHQ** which attained from [FFHQ repository](https://github.com/NVlabs/ffhq-dataset). 
 - The original size of the images in FFHQ are 1024x1024. We resize them to 512x512 with bilinear interpolation in our work. 
-- We provide our resized 512x512 FFHQ on [HuggingFace](https://huggingface.co/datasets/LIAGM/FFHQ_datasets/tree/main). Link this 512x512 version dataset to ./datasets/FFHQ/image512x512.
+- We provide our resized 512x512 FFHQ on [HuggingFace](https://huggingface.co/datasets/LIAGM/FFHQ_datasets/tree/main). 
+- Link this 512x512 version dataset to ```./datasets/FFHQ/image512x512.```
+- If you use our FFHQ dataset, please change the filename or change the code in the line 43 to ```f'{v:05d}.png'``` in 
+```/Your/conda/envs/DAEFR/lib/python3.8/site-packages/basicsr/data/ffhq_dataset.py```
 
 **Testing Dataset**: 
+
+Please put the following datasets in the ```./dataset/``` folder.
+
    <!-- * CelebA-Test-HQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip);
    * CelebA-Test-LQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/self_celeba_512_v2.zip);
    * LFW-Test: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/lfw_cropped_faces.zip);
@@ -82,7 +88,10 @@ pip install -r requirements.txt
 
 ---
 
-**Model**: Pretrained models used for training and the trained model of our DAEFR can be attained from [HuggingFace](https://huggingface.co/LIAGM/DAEFR_pretrain_model/tree/main). Link these models to ./experiments.
+**Model**: 
+
+Pretrained models used for training and the trained model of our DAEFR can be attained from [HuggingFace](https://huggingface.co/LIAGM/DAEFR_pretrain_model/tree/main). 
+Link these models to ```./experiments```.
 
 You can use the following command to download the model:
 ```shell
@@ -107,9 +116,20 @@ experiments/
 ```
 
 ## Test
-    sh scripts/test.sh
-Or you can use the following command for testing:
+If you put the model and dataset folder properly, you can use the following command:
+```shell
+bash run_test_and_evaluation.sh
 ```
+to obtain the results.
+
+Or you can modify the following the following script:
+
+```shell
+sh scripts/test.sh
+```
+
+Or you can use the following command for testing:
+```shell
 CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
 --outdir $outdir \
 -r $checkpoint \
@@ -120,21 +140,32 @@ CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
 
 ## Training
 ### First stage for codebooks
-    sh scripts/run_HQ_codebook_training.sh
-    sh scripts/run_LQ_codebook_training.sh
+```shell
+sh scripts/run_HQ_codebook_training.sh
+sh scripts/run_LQ_codebook_training.sh
+```
 ### Second stage for Association
-    sh scripts/run_association_stage_training.sh
+```shell
+sh scripts/run_association_stage_training.sh
+```
 ### Final stage for DAEFR
-    sh scripts/run_DAEFR_training.sh
+```shell
+sh scripts/run_DAEFR_training.sh
+```
 
 **Note**. 
 - Please modify the related paths to your own.
-- The second stage is for model association. You need to add your trained HQ\_Codebook and LQ\_Codebook model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/Association_stage.yaml.
-- The final stage is for face restoration. You need to add your trained HQ\_Codebook and Association model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/DAEFR.yaml.
+- If you encounter problems with FFHQ dataset names during training, please change the filename or change the code in the line 43 to ```f'{v:05d}.png'``` in 
+```/Your/conda/envs/DAEFR/lib/python3.8/site-packages/basicsr/data/ffhq_dataset.py```
+- The second stage is for model association. You need to add your trained HQ\_Codebook and LQ\_Codebook model to `ckpt_path_HQ` and `ckpt_path_LQ` in ```config/Association_stage.yaml```.
+- The final stage is for face restoration. You need to add your trained HQ\_Codebook and Association model to `ckpt_path_HQ` and `ckpt_path_LQ` in ```config/DAEFR.yaml```.
 - Our model is trained with 8 A100 40GB GPUs with batchsize 4.
 
 ## <a id="metrics">Metrics</a>
-    sh scripts/metrics/run.sh
+```shell
+sh scripts/metrics/run.sh
+```
+
     
 **Note**. 
 - You need to add the path of CelebA-Test dataset in the script if you want get IDA, PSNR, SSIM, LPIPS. You also need to modify the name of restored folders for evaluation.

@@ -4,6 +4,8 @@ opencv-python==4.5.2.54
 scipy==1.9.3
 basicsr==1.3.3.4
 numpy==1.23.5
+test-tube
 huggingface_hub
 six
 facexlib
+pillow==9.2.0
