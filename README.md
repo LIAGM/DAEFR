@@ -40,7 +40,7 @@ pip install -r requirements.txt
 **Training Dataset**: 
 - Training data: **HQ Codebook**, **LQ Codebook** and **DAEFR** are trained with **FFHQ** which attained from [FFHQ repository](https://github.com/NVlabs/ffhq-dataset). 
 - The original size of the images in FFHQ are 1024x1024. We resize them to 512x512 with bilinear interpolation in our work. 
-- We provide our resized 512x512 FFHQ on [HuggingFace](https://huggingface.co/datasets/LIAGM/FFHQ_datasets/tree/main). Link this 512x512 version dataset to ./data/FFHQ/image512x512.
+- We provide our resized 512x512 FFHQ on [HuggingFace](https://huggingface.co/datasets/LIAGM/FFHQ_datasets/tree/main). Link this 512x512 version dataset to ./datasets/FFHQ/image512x512.
 
 **Testing Dataset**: 
    <!-- * CelebA-Test-HQ: [HuggingFace](https://huggingface.co/datasets/LIAGM/DAEFR_test_datasets/blob/main/celeba_512_validation.zip);
@@ -128,9 +128,10 @@ CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
     sh scripts/run_DAEFR_training.sh
 
 **Note**. 
+- Please modify the related paths to your own.
 - The second stage is for model association. You need to add your trained HQ\_Codebook and LQ\_Codebook model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/Association_stage.yaml.
 - The final stage is for face restoration. You need to add your trained HQ\_Codebook and Association model to `ckpt_path_HQ` and `ckpt_path_LQ` in config/DAEFR.yaml.
-- Our model is trained with 8 A100 GPUs.
+- Our model is trained with 8 A100 40GB GPUs with batchsize 4.
 
 ## <a id="metrics">Metrics</a>
     sh scripts/metrics/run.sh
@@ -140,11 +141,11 @@ CUDA_VISIBLE_DEVICES=$GPU python -u scripts/test.py \
 - For LMD and NIQE, we use the evaluation code from [VQFR](https://github.com/TencentARC/VQFR). Please refer to their repo for more details.
 
 ## Citation
-    @article{tsai2023dual,
+    @inproceedings{tsai2024dual,
         title={Dual Associated Encoder for Face Restoration},
         author={Tsai, Yu-Ju and Liu, Yu-Lun and Qi, Lu and Chan, Kelvin CK and Yang, Ming-Hsuan},
-        journal={arXiv preprint arXiv:2308.07314},
-        year={2023}
+        booktitle={The Twelfth International Conference on Learning Representations},
+        year={2024}
     }
 
 ## Acknowledgement

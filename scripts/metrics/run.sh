@@ -1,6 +1,5 @@
 #!/bin/bash
 
-### Journal ###
 root='results/'
 out_root='results/metrics'
 
@@ -18,7 +17,7 @@ do
     need_post=1
     # need_post=0
 
-    CelebAHQ_GT='/ssd2/yuju/DAEFR/data/celeba_512_validation'
+    CelebAHQ_GT='./datasets/celeba_512_validation'
 
     # FID
     python -u scripts/metrics/cal_fid.py \

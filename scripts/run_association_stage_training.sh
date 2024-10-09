@@ -3,7 +3,7 @@ export CXX=g++
 
 conf_name='Association_stage'
 
-ROOT_PATH='/ssd1/yuju/DAEFR/experiments/' # The path for saving model and logs
+ROOT_PATH='./experiments/' # The path for saving model and logs
 
 gpus='0,1,2,3'
 # gpus='0,'
