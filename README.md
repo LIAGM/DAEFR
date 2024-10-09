@@ -19,16 +19,18 @@ We propose a novel dual-branch framework named **DAEFR**. Our method introduces 
 
 ## Environment
 
-- python>=3.7
-- pytorch>=1.7.1
+- python>=3.8
+- pytorch>=1.10.1
 - pytorch-lightning==1.0.8
 - omegaconf==2.0.0
 - basicsr==1.3.3.4
 
 You can also set up the environment by the following command:
-```
-conda env create -f environment.yml
+```shell
+conda create -n DAEFR python=3.8 -y
 conda activate DAEFR
+conda install pytorch==1.12.0 torchvision==0.13.0 cudatoolkit=11.3 -c pytorch -y
+pip install -r requirements.txt
 ```
 
 **Warning** Different versions of pytorch-lightning and omegaconf may lead to errors or different results.
@@ -78,7 +80,15 @@ conda activate DAEFR
 </tr>
 </table>
 
+---
+
 **Model**: Pretrained models used for training and the trained model of our DAEFR can be attained from [HuggingFace](https://huggingface.co/LIAGM/DAEFR_pretrain_model/tree/main). Link these models to ./experiments.
+
+You can use the following command to download the model:
+```shell
+python download_model_from_huggingface.py
+```
+
 
 Make sure the models are stored as follows:
 ```
