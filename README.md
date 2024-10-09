@@ -25,7 +25,7 @@ We propose a novel dual-branch framework named **DAEFR**. Our method introduces 
 - omegaconf==2.0.0
 - basicsr==1.3.3.4
 
-You can also set up the environment by the following command:
+Please properly set up the environment by the following command:
 ```shell
 conda create -n DAEFR python=3.8 -y
 conda activate DAEFR
